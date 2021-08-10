@@ -290,8 +290,6 @@ class RssChannel: THDistantItem, THDictionarySerializationProtocol {
 //					print("")
 //				}
 
-//		"<img src=\"https://www.grimper.com/media/021/05/193968438_10159916305459750_6148016976489071523_n__prop_200x150.jpeg\" style=\"float: left; margin: 10px;\" alt=\"Floating image\" />Les finales de cette nuit ont été pleines de surprises : ce n'est ni un Japonais, ni Adam Ondra (forfait sur blessure), qui gagne chez les hommes tandis que chez les filles Janja Garnbret s'est..."
-
 				if let d = content as NSString?, d.length > 20 {
 				
 					let r = d.range(of: "<img src=\"", range: NSRange(location: 0, length: "<img src=\"".count))

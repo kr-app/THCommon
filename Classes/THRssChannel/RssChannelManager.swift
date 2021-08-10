@@ -258,39 +258,6 @@ class RssChannelManager: NSObject, RssChannelDelegate {
 	// MARK: -
 	
 	func channel(_ channel: RssChannel, canIncludeItem item: RssChannelItem) -> Bool {
-		if channel.url.host! == "www.macg.co" {
-			if let title = item.title {
-				if title.hasPrefix("Offre Flash :") || title.hasPrefix("Promo :") || title.hasSuffix("📍") == true {
-					return false
-				}
-			}
-		}
-		else if channel.url.host! == "www.macrumors.co" {
-			if let title = item.title {
-				if title.hasPrefix("Deals: ") == true {
-					return false
-				}
-			}
-		}
-		else {
-			if let title = item.title {
-				if title.contains("our de France") == true {
-					return false
-				}
-				if title.hasPrefix("Foot:") == true || title.hasPrefix("Foot :") == true {
-					return false
-				}
-				if title.contains("Thomas Pesquet") == true {
-					return false
-				}
-				if title.contains("Euro") == true && title.contains("foot") == true {
-					return false
-				}
-				if title.contains("foot") == true && title.contains("ligue") == true {
-					return false
-				}
-			}
-		}
 		return true
 	}
 
