@@ -29,7 +29,10 @@
 //--------------------------------------------------------------------------------------------------------------------------------------------
 
 //--------------------------------------------------------------------------------------------------------------------------------------------
-@interface THRuleEditorRowView : NSView <NSTextFieldDelegate,THOverViewDelegateProtocol>
+@interface THRuleEditorRowView : NSView <NSTextFieldDelegate,
+																		NSComboBoxDelegate,
+																		THOverViewDelegateProtocol,
+																		THValueAndUnitViewDelegateProtocol>
 {
 	__weak id<THRuleEditorRowViewDelegateProtocol> _rulesEditor;
 

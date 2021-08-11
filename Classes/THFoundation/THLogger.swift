@@ -7,31 +7,31 @@
 #endif
 
 //--------------------------------------------------------------------------------------------------------------------------------------------
+@objc class THLoggerConfig: NSObject {
+	//@objc var dirPath: String?
+	@objc var retentionDays: TimeInterval = 30 * 24 * 3600
+	@objc var appName = ProcessInfo.processInfo.processName
+	@objc var rotationLogCount: Int = 100 * 1000
+}
+//--------------------------------------------------------------------------------------------------------------------------------------------
+
+
+//--------------------------------------------------------------------------------------------------------------------------------------------
 @objc class THLogger: NSObject {
 
 	@objc static let shared = THLogger()
+	
+	@objc var config = THLoggerConfig()
 
 	private var dirPath: String?
 	private var lock = NSLock()
-	private var dateFormatter = DateFormatter(withDateFormat: "yyyy-MM-dd HH:mm:ss.SSS")
+	private var dateFormatter = DateFormatter(dateFormat: "yyyy-MM-dd HH:mm:ss.SSS")
 	private var fileHandler: FileHandle?
-
 	private var nbLogs = 0
 
-	override init() {
-		super.init()
- 
-#if os(macOS)
-#if DEBUG
-		let old_dir = FileManager.th_appSupportPath("THLog")
-		if FileManager.default.fileExists(atPath: old_dir) == true {
-			if FileManager.default.th_removeItem(atPath: old_dir) == false {
-				fatalError("th_removeItem == false")
-			}
-		}
-#endif
-#endif
-	}
+//	override init() {
+//		super.init()
+//	}
 	
 	private func prepate() {
 		let paths = NSSearchPathForDirectoriesInDomains(.libraryDirectory, .userDomainMask, true)
@@ -80,7 +80,7 @@
 				continue
 			}
 		
-			if modDate.timeIntervalSinceNow > (-30.0.th_day) {
+			if config.retentionDays > 0.0 && modDate.timeIntervalSinceNow > -config.retentionDays {
 				continue
 			}
 
@@ -92,14 +92,14 @@
 		}
 
 		let m_pid = ProcessInfo.processInfo.processIdentifier
-		let appName = Bundle.main.executablePath!.th_lastPathComponent()
-		var logPath: String?
+		let appName = config.appName
+		var logPath: String? = nil
 
 		while logPath == nil {
-			let date = DateFormatter(withDateFormat: "yyyy-MM-dd HH-mm-ss").string(from: Date())
+			let date = DateFormatter(dateFormat: "yyyy-MM-dd HH-mm-ss").string(from: Date())
 			let filename = appName + " " + date + ".log"
-
-			let path = dirPath.th_appendingPathComponent(filename)
+			let path = (dirPath as NSString).appendingPathComponent(filename)
+	
 			if FileManager.default.fileExists(atPath: path) == true {
 				THLogError("another file exists at path:\(path)")
 				Thread.sleep(forTimeInterval: 1.0)
@@ -123,7 +123,7 @@
 		THLogInfo("created log file at path:\(logPath)")
 
 		var content = [String]()
-		content.append("Date: " + DateFormatter(withDateStyle: .medium, timeStyle: .medium).string(from: Date()))
+		content.append("Date: " + DateFormatter(dateStyle: .medium, timeStyle: .medium).string(from: Date()))
 		content.append("Bundle-Id: " + Bundle.main.bundleIdentifier!)
 		content.append("Process-pid: " + String(m_pid))
 //		content.append("Build Date-Time: " + DateFormatter.th_string_YMD_HMS(fromDate: TH_AppDateCompiled()!)!)
@@ -148,14 +148,18 @@
 
 		lock.lock()
 
-		if nbLogs >= 100*1000 {
+		if nbLogs >= config.rotationLogCount {
 			fh.write("\nCLOSED".data(using: .utf8)!)
 
+#if os(macOS)
 			if #available(macOS 10.15, *) {
 				try! fh.close()
 			} else {
 				fh.closeFile()
 			}
+#elseif os(iOS)
+			try! fh.close()
+#endif
 			self.fileHandler = nil
 
 			self.fileHandler = createFile(dirPath: dirPath!)!

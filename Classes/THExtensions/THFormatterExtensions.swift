@@ -21,7 +21,7 @@ fileprivate class DfCache {
 
 	private let currentCalendar = Calendar.current
 
-	@objc init(withTodayFormat todayFormat: String, otherFormatter: DateFormatter? = nil) {
+	@objc init(todayFormat: String, otherFormatter: DateFormatter? = nil) {
 		super.init()
 		self.todayFormatter = todayFormat == "HM" ? DateFormatter.th_HM : DateFormatter.th_HMS
 		self.otherFormatter = otherFormatter
@@ -52,25 +52,20 @@ fileprivate class DfCache {
 //--------------------------------------------------------------------------------------------------------------------------------------------
 extension DateFormatter {
 
-	@objc static let th_HM = DateFormatter(withDateFormat: "HH:mm")
-	@objc static let th_HMS = DateFormatter(withDateFormat: "HH:mm:ss")
-	@objc static let th_YMD = DateFormatter(withDateFormat: "yyyy-MM-dd")
-	@objc static let th_YMD_HMS = DateFormatter(withDateFormat: "yyyy-MM-dd HH:mm:ss")
+	@objc static let th_HM = DateFormatter(dateFormat: "HH:mm")
+	@objc static let th_HMS = DateFormatter(dateFormat: "HH:mm:ss")
+	@objc static let th_YMD = DateFormatter(dateFormat: "yyyy-MM-dd")
+	@objc static let th_YMD_HMS = DateFormatter(dateFormat: "yyyy-MM-dd HH:mm:ss")
 
-	@objc convenience init(withDateFormat dateFormat: String) {
+	@objc convenience init(dateFormat: String) {
 		self.init()
 		self.dateFormat = dateFormat
 	}
 
-	@objc convenience init(withDateStyle dateStyle: DateFormatter.Style, timeStyle: DateFormatter.Style) {
+	@objc convenience init(dateStyle: DateFormatter.Style, timeStyle: DateFormatter.Style) {
 		self.init()
 		self.dateStyle = dateStyle
 		self.timeStyle = timeStyle
-	}
-
-	@objc convenience init(withDateFormat_HMS dateFormat: String) {
-		self.init()
-		self.dateFormat = dateFormat
 	}
 
 }
@@ -93,13 +88,13 @@ extension RelativeDateTimeFormatter {
 //--------------------------------------------------------------------------------------------------------------------------------------------
 extension NumberFormatter {
 
-//	@objc class func th_string_decimal(from number: NSNumber?) -> String? {
-//		if DfCache.numberFormatter_decimal == nil {
-//			DfCache.numberFormatter_decimal = NumberFormatter()
-//			DfCache.numberFormatter_decimal?.numberStyle = .decimal
-//		}
-//		return number == nil ? nil : DfCache.numberFormatter_decimal!.string(from: number!)
-//	}
+	@objc class func th_string_decimal(from number: NSNumber?) -> String? {
+		if DfCache.numberFormatter_decimal == nil {
+			DfCache.numberFormatter_decimal = NumberFormatter()
+			DfCache.numberFormatter_decimal?.numberStyle = .decimal
+		}
+		return number == nil ? nil : DfCache.numberFormatter_decimal!.string(from: number!)
+	}
 
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------

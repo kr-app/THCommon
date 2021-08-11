@@ -8,7 +8,7 @@
 
 //-----------------------------------------------------------------------------------------------------------------------------------------
 @objc class THLogConsole: NSObject {
-	static let s_dateFormatter = DateFormatter(withDateFormat: "HH:mm:ss.SSS")
+	static let s_dateFormatter = DateFormatter(dateFormat: "HH:mm:ss.SSS")
 	static let s_homeDir = NSHomeDirectory()
 
 	class func write(_ log: String, at date: Date) {

@@ -186,10 +186,10 @@ fileprivate class THValueAndUnitView_Stepper : NSStepper {
 
 	override func unitMenu() -> NSMenu {
 		let menu = NSMenu()
-		menu.addItem(NSMenuItem(withTitle: THLocalizedString("FileSizePoids_KB"), tag: 1))
-		menu.addItem(NSMenuItem(withTitle: THLocalizedString("FileSizePoids_MB"), tag: 2))
-		menu.addItem(NSMenuItem(withTitle: THLocalizedString("FileSizePoids_GB"), tag: 3))
-		menu.addItem(NSMenuItem(withTitle: THLocalizedString("FileSizePoids_TB"), tag: 4))
+		menu.addItem(NSMenuItem(title: THLocalizedString("FileSizePoids_KB"), tag: 1))
+		menu.addItem(NSMenuItem(title: THLocalizedString("FileSizePoids_MB"), tag: 2))
+		menu.addItem(NSMenuItem(title: THLocalizedString("FileSizePoids_GB"), tag: 3))
+		menu.addItem(NSMenuItem(title: THLocalizedString("FileSizePoids_TB"), tag: 4))
 		return menu
 	}
 
@@ -206,13 +206,13 @@ fileprivate class THValueAndUnitView_Stepper : NSStepper {
 
 	override func unitMenu() -> NSMenu {
 		let menu = NSMenu()
-		menu.addItem(NSMenuItem(withTitle: THLocalizedString("Minute(s)"), tag: THFileSearchUnit_min))
-		menu.addItem(NSMenuItem(withTitle: THLocalizedString("Hour(s)"), tag: THFileSearchUnit_hour))
+		menu.addItem(NSMenuItem(title: THLocalizedString("Minute(s)"), tag: THFileSearchUnit_min))
+		menu.addItem(NSMenuItem(title: THLocalizedString("Hour(s)"), tag: THFileSearchUnit_hour))
 		menu.addItem(NSMenuItem.separator())
-		menu.addItem(NSMenuItem(withTitle: THLocalizedString("Day(s)"), tag: THFileSearchUnit_day))
-		menu.addItem(NSMenuItem(withTitle: THLocalizedString("Yeek(s)"), tag: THFileSearchUnit_week))
-		menu.addItem(NSMenuItem(withTitle: THLocalizedString("Month(s)"), tag: THFileSearchUnit_month))
-		menu.addItem(NSMenuItem(withTitle: THLocalizedString("Year(s)"), tag: THFileSearchUnit_year))
+		menu.addItem(NSMenuItem(title: THLocalizedString("Day(s)"), tag: THFileSearchUnit_day))
+		menu.addItem(NSMenuItem(title: THLocalizedString("Yeek(s)"), tag: THFileSearchUnit_week))
+		menu.addItem(NSMenuItem(title: THLocalizedString("Month(s)"), tag: THFileSearchUnit_month))
+		menu.addItem(NSMenuItem(title: THLocalizedString("Year(s)"), tag: THFileSearchUnit_year))
 		return menu
 	}
 

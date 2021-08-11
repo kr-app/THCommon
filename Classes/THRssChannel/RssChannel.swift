@@ -6,9 +6,9 @@ import Cocoa
 fileprivate class PubDateConvertor {
 	
 	private let df_iso = ISO8601DateFormatter()
-	private let df_alt0 = DateFormatter(withDateFormat: "E, d MMM yyyy HH:mm:ss Z")
-	private let df_alt1 = DateFormatter(withDateFormat: "E, dd MMM yyyy HH:mm:ss zzz")
-	private let df_alt2 = DateFormatter(withDateFormat: "E, dd MMM yyyy HH:mm:ss")
+	private let df_alt0 = DateFormatter(dateFormat: "E, d MMM yyyy HH:mm:ss Z")
+	private let df_alt1 = DateFormatter(dateFormat: "E, dd MMM yyyy HH:mm:ss zzz")
+	private let df_alt2 = DateFormatter(dateFormat: "E, dd MMM yyyy HH:mm:ss")
 	
 	private var df_alt2_tz: TimeZone?
 	

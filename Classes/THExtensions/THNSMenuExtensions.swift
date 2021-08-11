@@ -5,7 +5,7 @@ import Cocoa
 //--------------------------------------------------------------------------------------------------------------------------------------------
 extension NSMenu {
 
-	@objc convenience init(withTitle title: String?, delegate: NSMenuDelegate, autoenablesItems: Bool) {
+	@objc convenience init(title: String?, delegate: NSMenuDelegate, autoenablesItems: Bool) {
 		if let title = title {
 			self.init(title: title)
 		}
@@ -31,7 +31,7 @@ extension NSMenu {
 //--------------------------------------------------------------------------------------------------------------------------------------------
 extension NSMenuItem {
 
-	@objc convenience init(withTitle title: String, target: AnyObject? = nil, action: Selector? = nil, representedObject: Any? = nil, tag: Int = 0, enabled: Bool = true) {
+	@objc convenience init(title: String, target: AnyObject? = nil, action: Selector? = nil, representedObject: Any? = nil, tag: Int = 0, enabled: Bool = true) {
 		self.init(title: title, action: action, keyEquivalent: "")
 
 		if let target = target {
@@ -57,8 +57,8 @@ extension NSMenuItem {
 class THMenuItem: NSMenuItem {
 	var actionBlock: (() -> Void)!
 
-	convenience init(withTitle title: String, representedObject: Any? = nil, tag: Int = 0, enabled: Bool = true, block: @escaping () -> Void) {
-		self.init(withTitle: title, target: nil, action: #selector(mi_action), representedObject: representedObject, tag: tag, enabled: enabled)
+	convenience init(title: String, representedObject: Any? = nil, tag: Int = 0, enabled: Bool = true, block: @escaping () -> Void) {
+		self.init(title: title, target: nil, action: #selector(mi_action), representedObject: representedObject, tag: tag, enabled: enabled)
 		self.target = self
 		self.actionBlock = block
 	}

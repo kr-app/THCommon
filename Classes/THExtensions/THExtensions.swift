@@ -192,12 +192,12 @@ extension UIEdgeInsets {
 
 
 //-----------------------------------------------------------------------------------------------------------------------------------------
-extension NSDate {
+extension Date {
 
-	@objc func th_dateAtMidnight() -> Self? {
+	static func th_dateAtMidnight() -> Date {
 		let cal = Calendar.current
-		let dc = Calendar.current.dateComponents([.year, .month, .day], from: self as Date)
-		return cal.date(from: dc) as? Self
+		let dc = Calendar.current.dateComponents([.year, .month, .day], from: Date())
+		return cal.date(from: dc)!
 	}
 
 }
