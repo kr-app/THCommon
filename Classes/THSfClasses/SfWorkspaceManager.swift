@@ -73,7 +73,8 @@ import Foundation
 			return
 		}
 
-		timer = Timer.scheduledTimer(timeInterval: 60.0, target: self, selector:#selector(timer_action), userInfo:nil, repeats: true)
+		let refreshInterval = SfUserPref.shared.refreshInterval ?? SfUserPref.defaultRefreshInterval
+		timer = Timer.scheduledTimer(timeInterval: refreshInterval, target: self, selector:#selector(timer_action), userInfo:nil, repeats: true)
 
 		if captureNow == true {
 			timer_action(timer!)

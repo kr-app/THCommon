@@ -5,8 +5,6 @@ import Cocoa
 //--------------------------------------------------------------------------------------------------------------------------------------------
 @objc class SfWorkspace : NSObject, THDictionarySerializationProtocol {
 
-	private static let maxCaptures = 250
-
 	var identifier: Int = 0
 	@objc var name: String!
 	var isSelected = false
@@ -98,8 +96,9 @@ extension SfWorkspace {
 			return true
 		}
 
-		if captures!.count > Self.maxCaptures {
-			captures!.removeLast(captures!.count - Self.maxCaptures)
+		let maxCaptures = SfUserPref.shared.maxCaptures ?? SfUserPref.defaultMaxCaptures
+		if captures!.count > maxCaptures {
+			captures!.removeLast(captures!.count - maxCaptures)
 		}
 
 		captures!.append(capture)
