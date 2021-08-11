@@ -4,199 +4,9 @@
 #import "TH_APP-Swift.h"
 
 //--------------------------------------------------------------------------------------------------------------------------------------------
-@interface THRuleEditorRow_PopUpButton : NSPopUpButton
-@end
-
-@implementation THRuleEditorRow_PopUpButton
-- (BOOL)canBecomeKeyView { return YES; }
-@end
-//--------------------------------------------------------------------------------------------------------------------------------------------
-
-
-//--------------------------------------------------------------------------------------------------------------------------------------------
 @implementation THRuleEditorRowView
 
 static CGFloat marginLR=8.0;
-
-+ (NSFont*)defaultControlFont
-{
-	static NSFont *font=nil;
-	if (font==nil)
-		font=[NSFont systemFontOfSize:[NSFont systemFontSizeForControlSize:NSControlSizeSmall]];
-	return font;
-}
-
-+ (NSPopUpButton*)popUpButtonWithFrame:(NSRect)frame ruleItem:(THRuleItem*)ruleItem controlView:(id)controlView
-{
-	/*
-	 NSTexturedRoundedBezelStyle		19
-	 NSRoundRectBezelStyle 				17
-	 */
-	
-	frame.origin.y+=CGFloatFloor((frame.size.height-19.0)/2.0);
-	frame.size.height=19.0; // ou 17
-	
-	NSPopUpButton *result=[[THRuleEditorRow_PopUpButton alloc] initWithFrame:frame];
-	result.alignment=NSTextAlignmentLeft;
-	//result.bezelStyle=NSRoundedBezelStyle;
-	result.bezelStyle=NSBezelStyleTexturedRounded;
-	result.target=controlView;
-	result.action=@selector(criterionPopMenuAction:);
-	result.menu=ruleItem.menu;
-	result.autoresizingMask=NSViewMaxXMargin;
-	result.focusRingType=NSFocusRingTypeExterior;
-	//	if (isBordered!=nil)
-	//		[result setBordered:YES];
-	//	[result setImagePosition:imagePosition==nil?NSNoImage:[imagePosition intValue]];
-	
-	[(NSPopUpButtonCell*)result.cell setControlSize:NSControlSizeSmall];
-	[(NSPopUpButtonCell*)result.cell setFont:[[self class] defaultControlFont]];
-	[(NSPopUpButtonCell*)result.cell setLineBreakMode:NSLineBreakByTruncatingMiddle];
-	[(NSPopUpButtonCell*)result.cell setPullsDown:NO];
-	//	[(NSPopUpButtonCell*)[result cell] setArrowPosition:[arrowPosition integerValue]];
-	
-	if (ruleItem.menuSelectedTag!=0)
-		[result selectItemWithTag:ruleItem.menuSelectedTag];
-	else
-	{
-		for (NSMenuItem *menuItem in ruleItem.menu.itemArray)
-		{
-			if (menuItem.isSeparatorItem==YES)
-				continue;
-			if (TH_IsEqualNSString(menuItem.representedObject,ruleItem.menuSelectedObject)==YES)
-			{
-				[result selectItem:menuItem];
-				break;
-			}
-		}
-	}
-	
-	return result;
-}
-
-+ (NSTextField*)labelWithFrame:(NSRect)frame ruleItem:(THRuleItem*)ruleItem controlView:(id)controlView
-{
-	frame.origin.y+=CGFloatFloor((frame.size.height-14.0)/2.0);
-	frame.size.height=14.0;
-
-	NSTextField *result=[[NSTextField alloc] initWithFrame:frame];
-
-	result.font=[[self class] defaultControlFont];
-	[result setBordered:NO];
-	[result setEditable:NO];
-	[result setSelectable:NO];
-	[result setDrawsBackground:NO];
-	result.objectValue=ruleItem.stringValue;
-
-	[(NSTextFieldCell*)result.cell setControlSize:NSControlSizeSmall];
-	[(NSTextFieldCell*)result.cell setAlignment:NSTextAlignmentLeft];
-
-	return result;
-}
-
-+ (NSTextField*)textFieldWithFrame:(NSRect)frame ruleItem:(THRuleItem*)ruleItem controlView:(id)controlView
-{
-	frame.origin.y+=CGFloatFloor((frame.size.height-19.0)/2.0);
-	frame.size.height=19.0;
-	
-	NSTextField *result=[[NSTextField alloc] initWithFrame:frame];
-	result.font=[[self class] defaultControlFont];
-	//	result.target=controlView;
-	//	result.action=@selector(criterionTextFieldAction:);
-	result.delegate=controlView;
-	[result setEditable:YES];
-	[result setSelectable:YES];
-	[result setDrawsBackground:YES];
-	result.focusRingType=NSFocusRingTypeExterior;
-	result.objectValue=ruleItem.stringValue;
-
-	[(NSTextFieldCell*)result.cell setControlSize:NSControlSizeSmall];
-	[(NSTextFieldCell*)result.cell setAlignment:NSTextAlignmentLeft];
-	
-	return result;
-}
-
-+ (NSDatePicker*)datePickerWithFrame:(NSRect)frame ruleItem:(THRuleItem*)ruleItem controlView:(id)controlView
-{
-	NSDate *date=ruleItem.dateValue;
-	if (date==nil)
-		date=[[NSDate date] th_dateAtMidnight];
-	
-	frame.origin.y+=CGFloatFloor((frame.size.height-22.0)/2.0)+1.0;
-	frame.size.width=88.0;
-	frame.size.height=22.0;
-
-	static NSDate *datesRange[2]={nil,nil};
-	if (datesRange[0]==nil)
-	{
-		datesRange[0]=[[NSCalendar currentCalendar] dateFromComponents:[[NSDateComponents alloc] initWithYear:1970 month:1 day:1]];
-		datesRange[1]=[[NSCalendar currentCalendar] dateFromComponents:[[NSDateComponents alloc] initWithYear:2050 month:1 day:1]];
-	}
-
-	NSDatePicker *result=[[NSDatePicker alloc] initWithFrame:frame];
-	result.datePickerStyle=NSDatePickerStyleTextFieldAndStepper;
-	result.font=[[self class] defaultControlFont];
-	result.datePickerElements=NSDatePickerElementFlagYearMonth|NSDatePickerElementFlagYearMonthDay|NSDatePickerElementFlagEra;
-	result.target=controlView;
-	result.action=@selector(criterionDatePickerAction:);
-	result.minDate=datesRange[0];
-	result.maxDate=datesRange[1];
-	result.focusRingType=NSFocusRingTypeDefault;
-	result.drawsBackground=YES;
-	[result setBordered:YES];
-	[result setBezeled:YES];
-	
-	//	[result setDelegate:self];
-	//	[result.cell setDelegate:self];
-	result.dateValue=date!=nil?date:[NSDate date];
-
-	[(NSDatePickerCell*)result.cell setControlSize:NSControlSizeSmall];
-	//	[result.cell setEditable:YES];
-	
-	return result;
-}
-
-+ (THDateWithinStepperView*)dateWithinStepperViewWithFrame:(NSRect)frame ruleItem:(THRuleItem*)ruleItem controlView:(id)controlView
-{
-	THDateWithinStepperView *result=[[THDateWithinStepperView alloc] initWithFrame:frame
-																	 			popBezelStyle:NSBezelStyleTexturedRounded/*NSRoundedBezelStyle*/
-																				controlView:controlView];
-	[result setValueComps:ruleItem.dateWithin];
-	return result;
-}
-
-+ (THFileSizeStepperView*)fileSizeViewWithFrame:(NSRect)frame ruleItem:(THRuleItem*)ruleItem controlView:(id)controlView
-{
-	THFileSizeStepperView *result=[[THFileSizeStepperView alloc] initWithFrame:frame
-																 				popBezelStyle:NSBezelStyleTexturedRounded/*NSRoundedBezelStyle*/
-																				controlView:controlView];
-	[result setValueComps:ruleItem.fileSizeValue];
-	return result;
-}
-
-+ (NSComboBox*)comboxWithFrame:(NSRect)frame ruleItem:(THRuleItem*)ruleItem controlView:(id)controlView
-{
-	frame.origin.y+=CGFloatFloor((frame.size.height-22.0)/2.0);
-	frame.size.height=22.0;
-	
-	NSComboBox *result=[[NSComboBox alloc] initWithFrame:frame];
-	result.font=[[self class] defaultControlFont];
-	result.target=controlView;
-	result.action=@selector(criterionComboBoxAction:);
-	result.delegate=controlView;
-	[result setEditable:YES];
-	[result setSelectable:YES];
-	[result setDrawsBackground:YES];
-	result.focusRingType=NSFocusRingTypeExterior;
-	result.stringValue=ruleItem.stringValue!=nil?ruleItem.stringValue:@"";
-	[result addItemsWithObjectValues:[NSArray arrayWithArray:ruleItem.comboStrings]];
-	//result.numberOfItems=10;
-
-	[(NSComboBoxCell*)result.cell setControlSize:NSControlSizeSmall];
-	//	[result.cell setAlignment:NSLeftTextAlignment];
-	
-	return result;
-}
 
 //- (BOOL)acceptsFirstResponder { return YES; }
 //
@@ -306,21 +116,22 @@ static CGFloat marginLR=8.0;
 		else
 			cRect.size.width=ruleItem.wSize;
 
+		THRuleEditorControl *ruleEditorControl=[[THRuleEditorControl alloc] init];
 		NSView *criterionView=nil;
 		if (ruleItem.kind==THRuleItemKind_popMenu)
-			criterionView=[THRuleEditorRowView popUpButtonWithFrame:cRect ruleItem:ruleItem controlView:self];
+			criterionView=[ruleEditorControl popUpButtonWithFrame:cRect ruleItem:ruleItem controlView:self];
 		else if (ruleItem.kind==THRuleItemKind_label)
-			criterionView=[THRuleEditorRowView labelWithFrame:cRect ruleItem:ruleItem controlView:self];
+			criterionView=[ruleEditorControl labelWithFrame:cRect ruleItem:ruleItem controlView:self];
 		else if (ruleItem.kind==THRuleItemKind_textField)
-			criterionView=[THRuleEditorRowView textFieldWithFrame:cRect ruleItem:ruleItem controlView:self];
+			criterionView=[ruleEditorControl textFieldWithFrame:cRect ruleItem:ruleItem controlView:self];
 		else if (ruleItem.kind==THRuleItemKind_datePicker)
-			criterionView=[THRuleEditorRowView datePickerWithFrame:cRect ruleItem:ruleItem controlView:self];
+			criterionView=[ruleEditorControl datePickerWithFrame:cRect ruleItem:ruleItem controlView:self];
 		else if (ruleItem.kind==THRuleItemKind_dateWithin)
-			criterionView=[THRuleEditorRowView dateWithinStepperViewWithFrame:cRect ruleItem:ruleItem controlView:self];
+			criterionView=[ruleEditorControl dateWithinStepperViewWithFrame:cRect ruleItem:ruleItem controlView:self];
 		else if (ruleItem.kind==THRuleItemKind_fileSize)
-			criterionView=[THRuleEditorRowView fileSizeViewWithFrame:cRect ruleItem:ruleItem controlView:self];
+			criterionView=[ruleEditorControl fileSizeViewWithFrame:cRect ruleItem:ruleItem controlView:self];
 		else if (ruleItem.kind==THRuleItemKind_combox)
-			criterionView=[THRuleEditorRowView comboxWithFrame:cRect ruleItem:ruleItem controlView:self];
+			criterionView=[ruleEditorControl comboxWithFrame:cRect ruleItem:ruleItem controlView:self];
 		else if (ruleItem.kind==THRuleItemKind_viewController)
 		{
 			[ruleItem.viewController rulesEditorViewWillDisplayView];

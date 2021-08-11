@@ -1,7 +1,6 @@
 // THRuleEditorItem.h
 
 #import <Cocoa/Cocoa.h>
-#import "THValueAndUnitView.h"
 
 //--------------------------------------------------------------------------------------------------------------------------------------------
 enum // SERIALIZED
