@@ -1,3 +1,3 @@
 # THCommon
 
-Common classes
+Common classes for all apps
