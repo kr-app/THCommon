@@ -6,7 +6,7 @@ import Cocoa
 @objc class THFinderTools: NSObject {
 
 	@objc class func displayFinderGetInfo(ofPath path: String) -> Bool {
-		if path == nil || FileManager.default.fileExists(atPath: path) == false {
+		if FileManager.default.fileExists(atPath: path) == false {
 			return false
 		}
 

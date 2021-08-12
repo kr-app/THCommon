@@ -7,11 +7,11 @@
 #endif
 
 //--------------------------------------------------------------------------------------------------------------------------------------------
-@objc class THLoggerConfig: NSObject {
-	//@objc var dirPath: String?
-	@objc var retentionDays: TimeInterval = 30 * 24 * 3600
-	@objc var appName = ProcessInfo.processInfo.processName
-	@objc var rotationLogCount: Int = 100 * 1000
+class THLoggerConfig: NSObject {
+	var dirPath: String?
+	var retentionDays: TimeInterval = 30 * 24 * 3600
+	var appName = ProcessInfo.processInfo.processName
+	var rotationLogCount: Int = 100 * 1000
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -21,7 +21,7 @@
 
 	@objc static let shared = THLogger()
 	
-	@objc var config = THLoggerConfig()
+	var config = THLoggerConfig()
 
 	private var dirPath: String?
 	private var lock = NSLock()
@@ -29,43 +29,54 @@
 	private var fileHandler: FileHandle?
 	private var nbLogs = 0
 
-//	override init() {
-//		super.init()
-//	}
-	
-	private func prepate() {
-		let paths = NSSearchPathForDirectoriesInDomains(.libraryDirectory, .userDomainMask, true)
-		var logDir = paths.first!.th_appendingPathComponent("Logs")
+	private func prepateDirectory() {
+		var dirPath = config.dirPath
+		
+		if dirPath == nil {
+			let paths = NSSearchPathForDirectoriesInDomains(.libraryDirectory, .userDomainMask, true)
+			var logDir = paths.first!.th_appendingPathComponent("Logs")
 
 #if os(macOS)
-		if THRunningApp.isSandboxedApp() == false {
-			let bundleId = Bundle.main.bundleIdentifier!
-			logDir = logDir.th_appendingPathComponent(bundleId)
-		}
+			if THRunningApp.isSandboxedApp() == false {
+				let bundleId = Bundle.main.bundleIdentifier!
+				logDir = logDir.th_appendingPathComponent(bundleId)
+			}
 #elseif os(iOS)
-		//	dir = paths.first
+//			dir = paths.first
 #endif
+			dirPath = logDir.th_appendingPathComponent("THLog")
+		}
 
-		logDir = logDir.th_appendingPathComponent("THLog")
-		dirPath = logDir
-
-		THFatalError(FileManager.th_checkHasCreatedDirectory(atPath: logDir) == false, "th_checkHasCreatedDirectory == false logdir:\(logDir)")
-
-		guard let fileHandler = createFile(dirPath: logDir)
+		guard let dirPath = dirPath
 		else {
-			THLogError("THLogger - init -_file == nil")
-			exit(0);
+			return
+		}
+	
+		if FileManager.th_checkCreatedDirectory(atPath: dirPath) == false {
+			THLogError("th_checkCreatedDirectory == false dirPath:\(dirPath)")
+			return
+		}
+
+		self.dirPath = dirPath
+		guard let fileHandler = createFileHandler()
+		else {
+			THLogError("THLogger - init -fileHandler == nil")
+			return
 		}
 
 		self.fileHandler = fileHandler
 	}
 
-	private func createFile(dirPath: String) -> FileHandle? {
+	private func purgeDirectory() {
+		guard let dirPath = dirPath
+		else {
+			return
+		}
 
 		guard let dirContents = try? FileManager.default.contentsOfDirectory(atPath: dirPath)
 		else {
 			THLogError("dirContents == nil dirPath:\(dirPath)")
-			return nil
+			return
 		}
 
 		for filename in dirContents {
@@ -90,6 +101,13 @@
 				THLogError("removeItemAtPath == false path:\(path)")
 			}
 		}
+	}
+
+	private func createFileHandler() -> FileHandle? {
+		guard let dirPath = dirPath
+		else {
+			return nil
+		}
 
 		let m_pid = ProcessInfo.processInfo.processIdentifier
 		let appName = config.appName
@@ -97,7 +115,7 @@
 
 		while logPath == nil {
 			let date = DateFormatter(dateFormat: "yyyy-MM-dd HH-mm-ss").string(from: Date())
-			let filename = appName + " " + date + ".log"
+			let filename = "\(appName) \(m_pid) \(date).log"
 			let path = (dirPath as NSString).appendingPathComponent(filename)
 	
 			if FileManager.default.fileExists(atPath: path) == true {
@@ -124,11 +142,12 @@
 
 		var content = [String]()
 		content.append("Date: " + DateFormatter(dateStyle: .medium, timeStyle: .medium).string(from: Date()))
-		content.append("Bundle-Id: " + Bundle.main.bundleIdentifier!)
 		content.append("Process-pid: " + String(m_pid))
-//		content.append("Build Date-Time: " + DateFormatter.th_string_YMD_HMS(fromDate: TH_AppDateCompiled()!)!)
-		content.append("")
+		content.append("Bundle-Id: " + Bundle.main.bundleIdentifier!)
 		content.append("Session-Locale: " + NSLocale.current.identifier)
+		content.append("App-Version: " + THRunningApp.appVersion)
+		content.append("App-Build: " + THRunningApp.appBuild)
+//		content.append("Build Date-Time: " + DateFormatter.th_string_YMD_HMS(fromDate: TH_AppDateCompiled()!)!)
 		content.append("\n")
 
 		fh.write(content.joined(separator: "\n").data(using: .utf8)!)
@@ -138,7 +157,7 @@
 
 	@objc func write(_ log: String, for date: Date) {
 		if dirPath == nil {
-			prepate()
+			prepateDirectory()
 		}
 
 		guard let fh = fileHandler
@@ -147,6 +166,9 @@
 		}
 
 		lock.lock()
+
+		nbLogs += 1
+		fh.write((dateFormatter.string(from: date) + " " + log + "\n").data(using: .utf8)!)
 
 		if nbLogs >= config.rotationLogCount {
 			fh.write("\nCLOSED".data(using: .utf8)!)
@@ -160,14 +182,13 @@
 #elseif os(iOS)
 			try! fh.close()
 #endif
-			self.fileHandler = nil
 
-			self.fileHandler = createFile(dirPath: dirPath!)!
+			fileHandler = nil
 			nbLogs = 0
-		}
 
-		nbLogs += 1
-		self.fileHandler!.write((dateFormatter.string(from: date) + " " + log + "\n").data(using: .utf8)!)
+			purgeDirectory()
+			fileHandler = createFileHandler()
+		}
 
 		lock.unlock()
 	}

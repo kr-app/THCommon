@@ -63,9 +63,9 @@ extension FileManager {
 		return nName
 	}
 
-	@objc class func th_checkHasCreatedDirectory(atPath dirPath: String) -> Bool {
+	@objc class func th_checkCreatedDirectory(atPath dirPath: String) -> Bool {
 
-		var isDir = ObjCBool(true)
+		var isDir = ObjCBool(false)
 		if FileManager.default.fileExists(atPath: dirPath, isDirectory: &isDir) == true {
 			if isDir.boolValue == true {
 				return true
@@ -101,8 +101,8 @@ extension FileManager {
 			dir = paths.first
 #endif
 			
-			if th_checkHasCreatedDirectory(atPath: dir) == false {
-				THFatalError(true, "th_checkHasCreatedDirectory == false dir:\(dir)")
+			if th_checkCreatedDirectory(atPath: dir) == false {
+				THFatalError(true, "th_checkCreatedDirectory == false dir:\(dir)")
 			}
 
 			Cached.appSupportDirPath = dir
@@ -113,8 +113,8 @@ extension FileManager {
 		}
 
 		let dirPath = Cached.appSupportDirPath!.th_appendingPathComponent(dirComponent!)
-		if th_checkHasCreatedDirectory(atPath: dirPath) == false {
-			THFatalError(true, "th_checkHasCreatedDirectory == false dirPath:\(dirPath)")
+		if th_checkCreatedDirectory(atPath: dirPath) == false {
+			THFatalError(true, "th_checkCreatedDirectory == false dirPath:\(dirPath)")
 		}
 
 		return dirPath
@@ -139,8 +139,8 @@ extension FileManager {
 			dir = paths.first
 #endif
 			
-			if th_checkHasCreatedDirectory(atPath: dir) == false {
-				fatalError("th_checkHasCreatedDirectory == false dir:\(dir)")
+			if th_checkCreatedDirectory(atPath: dir) == false {
+				fatalError("th_checkCreatedDirectory == false dir:\(dir)")
 			}
 
 			Cached.cachesDirPath = dir
@@ -151,8 +151,8 @@ extension FileManager {
 		}
 
 		let dirPath = Cached.cachesDirPath!.th_appendingPathComponent(dirComponent!)
-		if th_checkHasCreatedDirectory(atPath: dirPath) == false {
-			fatalError("th_checkHasCreatedDirectory == false dirPath:\(dirPath)")
+		if th_checkCreatedDirectory(atPath: dirPath) == false {
+			fatalError("th_checkCreatedDirectory == false dirPath:\(dirPath)")
 		}
 
 		return dirPath
