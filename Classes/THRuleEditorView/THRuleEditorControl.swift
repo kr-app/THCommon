@@ -47,7 +47,7 @@ fileprivate class THRuleEditorRow_PopUpButton : NSPopUpButton {
 			result.selectItem(withTag: ruleItem.menuSelectedTag)
 		}
 		else {
-			for item in ruleItem.menu.items {
+			for item in ruleItem.menu!.items {
 				if item.isSeparatorItem == true {
 					continue
 				}
@@ -150,13 +150,13 @@ fileprivate class THRuleEditorRow_PopUpButton : NSPopUpButton {
 
 	@objc func dateWithinStepperView(withFrame frame: NSRect, ruleItem: THRuleItem, controlView: THValueAndUnitViewDelegateProtocol) -> THDateWithinStepperView {
 		let result = THDateWithinStepperView(frame: frame, popBezelStyle: .texturedRounded, controlSize: .small, controlView: controlView)
-		result.setValueComps(ruleItem.dateWithin)
+		result.setValueComps(ruleItem.dateWithin!)
 		return result
 	}
 
 	@objc func fileSizeView(withFrame frame: NSRect, ruleItem: THRuleItem, controlView: THValueAndUnitViewDelegateProtocol) -> THFileSizeStepperView {
 		let result = THFileSizeStepperView(frame: frame, popBezelStyle: .texturedRounded,  controlSize: .small, controlView: controlView)
-		result.setValueComps(ruleItem.fileSizeValue)
+		result.setValueComps(ruleItem.fileSizeValue!)
 		return result
 	}
 
@@ -176,7 +176,7 @@ fileprivate class THRuleEditorRow_PopUpButton : NSPopUpButton {
 		result.drawsBackground = true
 		result.focusRingType = .exterior
 		result.stringValue = ruleItem.stringValue ?? ""
-		result.addItems(withObjectValues: ruleItem.comboStrings)
+		result.addItems(withObjectValues: ruleItem.comboStrings!)
 		//result.numberOfItems=10;
 
 		let cell = result.cell as! NSComboBoxCell

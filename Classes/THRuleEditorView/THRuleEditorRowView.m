@@ -118,28 +118,28 @@ static CGFloat marginLR=8.0;
 
 		THRuleEditorControl *ruleEditorControl=[[THRuleEditorControl alloc] init];
 		NSView *criterionView=nil;
-		if (ruleItem.kind==THRuleItemKind_popMenu)
+		if (ruleItem.kind==THRuleItemKindPopMenu)
 			criterionView=[ruleEditorControl popUpButtonWithFrame:cRect ruleItem:ruleItem controlView:self];
-		else if (ruleItem.kind==THRuleItemKind_label)
+		else if (ruleItem.kind==THRuleItemKindLabel)
 			criterionView=[ruleEditorControl labelWithFrame:cRect ruleItem:ruleItem controlView:self];
-		else if (ruleItem.kind==THRuleItemKind_textField)
+		else if (ruleItem.kind==THRuleItemKindTextField)
 			criterionView=[ruleEditorControl textFieldWithFrame:cRect ruleItem:ruleItem controlView:self];
-		else if (ruleItem.kind==THRuleItemKind_datePicker)
+		else if (ruleItem.kind==THRuleItemKindDatePicker)
 			criterionView=[ruleEditorControl datePickerWithFrame:cRect ruleItem:ruleItem controlView:self];
-		else if (ruleItem.kind==THRuleItemKind_dateWithin)
+		else if (ruleItem.kind==THRuleItemKindDateWithin)
 			criterionView=[ruleEditorControl dateWithinStepperViewWithFrame:cRect ruleItem:ruleItem controlView:self];
-		else if (ruleItem.kind==THRuleItemKind_fileSize)
+		else if (ruleItem.kind==THRuleItemKindFileSize)
 			criterionView=[ruleEditorControl fileSizeViewWithFrame:cRect ruleItem:ruleItem controlView:self];
-		else if (ruleItem.kind==THRuleItemKind_combox)
+		else if (ruleItem.kind==THRuleItemKindCombox)
 			criterionView=[ruleEditorControl comboxWithFrame:cRect ruleItem:ruleItem controlView:self];
-		else if (ruleItem.kind==THRuleItemKind_viewController)
+		else if (ruleItem.kind==THRuleItemKindViewController)
 		{
 			[ruleItem.viewController rulesEditorViewWillDisplayView];
-			criterionView=ruleItem.viewController.view;
+			criterionView=[(NSViewController*)ruleItem.viewController view];
 			criterionView.frame=NSMakeRect(cRect.origin.x,cRect.origin.y,cRect.size.width,cRect.size.height);
 		}
 	
-		if (ruleItem.kind==THRuleItemKind_textField || ruleItem.kind==THRuleItemKind_combox)
+		if (ruleItem.kind==THRuleItemKindTextField || ruleItem.kind==THRuleItemKindCombox)
 		{
 			if (ruleItem==[criterion[@"items"] lastObject])
 				criterionView.autoresizingMask=NSViewWidthSizable;

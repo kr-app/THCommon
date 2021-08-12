@@ -1,7 +1,6 @@
 // THRuleEditorView.h
 
 #import <Cocoa/Cocoa.h>
-#import "THRuleEditorItem.h"
 #import "THRuleEditorRowView.h"
 
 //--------------------------------------------------------------------------------------------------------------------------------------------
