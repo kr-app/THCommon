@@ -20,12 +20,12 @@ class RssChannelItem: NSObject, THDictionarySerializationProtocol {
 	var checkedDate: Date?
 	var checked: Bool { get { return checkedDate != nil } }
 	var pinned = false
-	var wallDate: Date { get { 	let d: Date! = published ?? received
-												if let checkedDate = checkedDate {
-													return checkedDate > d ? checkedDate : d
-												}
-												return d
-											}}
+//	var wallDate: Date { get { 	return received/*let d: Date! = published ?? received
+//												if let checkedDate = checkedDate {
+//													return checkedDate > d ? checkedDate : d
+//												}
+//												return d*/
+//											}}
 
 	override var description: String {
 		th_description("identifier: \(identifier) published: \(published) updated:\(updated) title: \(title?.th_truncate(maxChars: 20, by: .byTruncatingTail))")
@@ -96,7 +96,7 @@ class RssChannelItem: NSObject, THDictionarySerializationProtocol {
 extension RssChannelItem {
 
 	func isRecent(refDate: TimeInterval) -> Bool {
-		if self.wallDate.timeIntervalSinceReferenceDate >= refDate {
+		if self.received.timeIntervalSinceReferenceDate >= refDate {
 			return true
 		}
 		return false

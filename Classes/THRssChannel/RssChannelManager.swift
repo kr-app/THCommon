@@ -3,29 +3,29 @@
 import Cocoa
 
 //--------------------------------------------------------------------------------------------------------------------------------------------
-class RssChannelManager: NSObject, RssChannelDelegate {
+class RssChannelManager: NSObject {
 
 	static let shared = RssChannelManager()
 	static let channelUpdatedNotification = Notification.Name("RssChannelManager-channelUpdatedNotification")
 	static let channelItemUpdatedNotification = Notification.Name("RssChannelManager-channelItemUpdatedNotification")
 	
-	var channels = [RssChannel]()
+	var filters = [RssChannelFilter]()
+	private(set) var channels = [RssChannel]()
 
 	private let dirPath = FileManager.th_appSupportPath("RssChannels")
-	private var urlSession: URLSession!
+	private var urlSession = URLSession(configuration: URLSessionConfiguration.th_ephemeral())
 	private var synchronizeTimer: Timer?
 	
 	// MARK: -
 	
 	override init() {
 		super.init()
-
 		loadChannels()
-		urlSession = URLSession(configuration: URLSessionConfiguration.th_ephemeral())
 	}
 
-	private func loadChannels() {
+	
 
+	private func loadChannels() {
 		let files = try! FileManager.default.contentsOfDirectory(	at: URL(fileURLWithPath: dirPath),
 																								includingPropertiesForKeys:nil,
 																								options: [.skipsHiddenFiles, .skipsSubdirectoryDescendants])
@@ -40,7 +40,7 @@ class RssChannelManager: NSObject, RssChannelDelegate {
 				THLogError("channel == nil file:\(file)")
 			}
 		}
-		
+	
 		channels.sort(by: { $0.creationDate < $1.creationDate })
 		
 		var nbItems = 0
@@ -95,19 +95,19 @@ class RssChannelManager: NSObject, RssChannelDelegate {
 	// MARK: -
 	
 	func recentRefDate() -> TimeInterval {
-		return Date().timeIntervalSinceReferenceDate - 0.5.th_day
+		Date().timeIntervalSinceReferenceDate - 0.5.th_day
 	}
 
 	func channelsOnError() -> [RssChannel] {
-		return channels.filter( { $0.lastError != nil } )
+		channels.filter( { $0.lastError != nil } )
 	}
 
 	func channel(withUrl url: URL) -> RssChannel? {
-		return channels.first(where: { $0.url == url } )
+		channels.first(where: { $0.url == url } )
 	}
 	
 	private func channel(withId identifier: String) -> RssChannel? {
-		return channels.first(where: { $0.identifier == identifier } )
+		channels.first(where: { $0.identifier == identifier } )
 	}
 
 //	func unreadedChannels() -> [RssChannel] {
@@ -150,14 +150,14 @@ class RssChannelManager: NSObject, RssChannelDelegate {
 //		})
 //	}
 
-	func wallChannels() -> [RssChannel] {
-		return channels.sorted(by: {
-			if let p0 = $0.items.first?.wallDate, let p1 = $1.items.first?.wallDate {
-				return p0 > p1
-			}
-			return false
-		})
-	}
+//	func wallChannels() -> [RssChannel] {
+//		return channels.sorted(by: {
+//			if let p0 = $0.items.first?.wallDate, let p1 = $1.items.first?.wallDate {
+//				return p0 > p1
+//			}
+//			return false
+//		})
+//	}
 
 	func removeItem(_ item: RssChannelItem, ofChannel channelId: String) {
 		guard let channel = channel(withId: channelId)
@@ -254,11 +254,20 @@ class RssChannelManager: NSObject, RssChannelDelegate {
 			NotificationCenter.default.post(name: Self.channelUpdatedNotification, object: self, userInfo: ["channel": channel])
 		})
 	}
+}
 	
-	// MARK: -
+extension RssChannelManager: RssChannelDelegate {
 	
-	func channel(_ channel: RssChannel, canIncludeItem item: RssChannelItem) -> Bool {
-		return true
+	func channel(_ channel: RssChannel, excludedItemByTitle title: String) -> Bool {
+		let url = channel.url.absoluteString
+
+		for filter in filters {
+			if filter.match(withHost: url, itemTitle: title) == true {
+				return true
+			}
+		}
+
+		return false
 	}
 
 }
