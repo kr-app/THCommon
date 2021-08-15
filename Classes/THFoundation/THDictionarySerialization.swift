@@ -7,17 +7,25 @@ import UIKit
 #endif
 
 //--------------------------------------------------------------------------------------------------------------------------------------------
-protocol THDictionaryRepresentationProtocol: NSObject {
+protocol THDictionaryRepresentationProtocol {
 	func dictionaryRepresentation() -> THDictionaryRepresentation
 }
 
-class THDictionaryRepresentation: NSObject {
+class THDictionaryRepresentation {
 	var values = [String: Any]()
 
 	func setObject(_ object: Any?, forKey key: String) {
 		values[key] = object
 	}
 
+	func setObjects(_ objects: [THDictionaryRepresentationProtocol]?, forKey key: String) {
+		values[key] = objects?.map( { $0.dictionaryRepresentation().values } )
+	}
+
+	func setDictionaryRepresentation(_ dictionaryRepresentation: THDictionaryRepresentation, forKey key: String) {
+		values[key] = dictionaryRepresentation.values
+	}
+	
 	func setString(_ string: String?, forKey key: String) {
 		values[key] = string
 	}
@@ -48,6 +56,13 @@ class THDictionaryRepresentation: NSObject {
 		return values[key]
 	}
 
+	func dictionaryRepresentation(forKey key: String) -> THDictionaryRepresentation? {
+		if let values = values[key] as? [String: Any] {
+			return THDictionaryRepresentation(values: values)
+		}
+		return nil
+	}
+
 	func string(forKey key: String) -> String? {
 		return values[key] as? String
 	}
@@ -76,8 +91,8 @@ class THDictionaryRepresentation: NSObject {
 	}
 #endif
 
-	override var description: String {
-		th_description("values:\(values)")
+	var description: String {
+		"values:\(values)"
 	}
 	
 	func write(toFile path: String) -> Bool {
@@ -88,29 +103,22 @@ class THDictionaryRepresentation: NSObject {
 		}
 		return true
 	}
-
-	override init() {
-		super.init()
-	}
 	
+	init() {
+	}
+
 	fileprivate init(values: [String: Any]) {
 		self.values = values
 	}
 
 	init?(contentsOfFile path: String) {
-		super.init()
-	
 		guard let plist = NSDictionary(contentsOfFile: path)
 		else {
 			THLogError("contentsOfFile == nil path:\(path)")
 			return nil
 		}
-	
-		self.values = plist as! [String: Any]
-	}
 
-	func setObjects(_ objects: [THDictionaryRepresentationProtocol]?, forKey key: String) {
-		values[key] = objects?.map( { $0.dictionaryRepresentation().values } )
+		self.values = plist as! [String: Any]
 	}
 
 }

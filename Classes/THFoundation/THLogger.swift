@@ -58,6 +58,8 @@ class THLoggerConfig: NSObject {
 		}
 
 		self.dirPath = dirPath
+		purgeDirectory()
+
 		guard let fileHandler = createFileHandler()
 		else {
 			THLogError("THLogger - init -fileHandler == nil")
