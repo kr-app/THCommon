@@ -48,8 +48,8 @@ class IconDownloader: NSObject {
 		super.init()
 
 		if let cacheDir = cacheDir {
-			if FileManager.th_checkHasCreatedDirectory(atPath: cacheDir) == false {
-				fatalError("th_checkHasCreatedDirectory == false cacheDir:\(cacheDir)")
+			if FileManager.th_checkCreatedDirectory(atPath: cacheDir) == false {
+				fatalError("th_checkCreatedDirectory == false cacheDir:\(cacheDir)")
 			}
 		}
 
@@ -70,12 +70,12 @@ class IconDownloader: NSObject {
 
 		guard let cacheDir = cacheDir
 		else {
-			fatalError("cacheDir")
+			THFatalError("cacheDir == nil")
 		}
 
 		guard let files = FileManager.default.enumerator(atPath: cacheDir)
 		else {
-			fatalError("files == nil cacheDir:\(cacheDir)")
+			THFatalError("files == nil cacheDir:\(cacheDir)")
 		}
 
 		let now = Date().timeIntervalSince1970
@@ -114,7 +114,7 @@ class IconDownloader: NSObject {
 
 	// MARK: -
 	
-	fileprivate func proposedFileName(forRepObject repObject: AnyObject) -> String? {
+	fileprivate func proposedFilename(forRepObject repObject: AnyObject) -> String? {
 		fatalError("subclass implementation")
 	}
 
@@ -165,7 +165,7 @@ class IconDownloader: NSObject {
 			return true
 		}
 
-		guard let file = proposedFileName(forRepObject: repObject!)
+		guard let file = proposedFilename(forRepObject: repObject!)
 		else {
 			return false
 		}
@@ -208,13 +208,14 @@ class IconDownloader: NSObject {
 		var needsUpdate = false
 
 		if icon!.content == nil && cacheDir != nil {
-			if let file = proposedFileName(forRepObject: repObject) {
+			if let file = proposedFilename(forRepObject: repObject) {
 				let path = cacheDir!.th_appendingPathComponent(file)
 
 				if FileManager.default.fileExists(atPath: path) == true {
 
 					let data = try? (NSData(contentsOfFile: path) as Data)
 					let img = data == nil ? nil : TH_NSUI_Image(data: data!)
+
 					if img == nil {
 						THLogError("can not create image from data at path:\(path)")
 						if FileManager.default.th_removeItem(atPath: path) == false {
@@ -273,17 +274,17 @@ class IconDownloader: NSObject {
 	}
 
 	fileprivate func removeIcon(atURL url: URL?) {
-		fatalError("not yet implemented")
+		THFatalError("not yet implemented")
 	}
 
 	fileprivate func removeIcons() {
-		fatalError("not yet implemented")
+		THFatalError("not yet implemented")
 	}
 
 	// MARK: -
 
 	private func saveToDisk(data: Data, ofIcon icon: Icon, receivedData: Bool = false) -> Bool {
-		guard let file = proposedFileName(forRepObject: icon.repObject)
+		guard let file = proposedFilename(forRepObject: icon.repObject)
 		else {
 			return false
 		}
@@ -345,7 +346,7 @@ class IconDownloader: NSObject {
 			}
 
 			if data!.count > 1.th_Mio {
-				THLogError("expensive data length: (\(ByteCountFormatter.th_string_bin1024(from: Int64(data!.count))) for icon:\(icon)")
+				THLogError("expensive data length: (\(ByteCountFormatter.th_bin1024.string(fromByteCount: Int64(data!.count))) for icon:\(icon)")
 			}
 
 			guard let d_img = TH_NSUI_Image(data: data!)
@@ -400,7 +401,7 @@ class THIconDownloader: IconDownloader {
 
 	var delegate: THIconDownloaderDelegateProtocol?
 
-	override func proposedFileName(forRepObject repObject: AnyObject) -> String? {
+	override func proposedFilename(forRepObject repObject: AnyObject) -> String? {
 		var fn = (repObject as! URL).path
 		if fn.hasPrefix("/") {
 			fn = String(fn.dropFirst(1))
@@ -411,7 +412,7 @@ class THIconDownloader: IconDownloader {
 		if fn.count > 200 {
 			fn = String(fn.dropFirst(fn.count - 200))
 		}
-		return FileManager.th_securisedFileName(fn, subsitution: "_")!
+		return FileManager.th_secureFilename(fn, subsitution: "_")!
 	}
 	
 	fileprivate override func startConnection(ofIcon icon: Icon) {
@@ -500,7 +501,7 @@ class THIconDownloader: IconDownloader {
 		super.init(identifier: identifier, cacheDir: cacheDir)
 	}
 
-	override func proposedFileName(forRepObject repObject: AnyObject) -> String? {
+	override func proposedFilename(forRepObject repObject: AnyObject) -> String? {
 		return (repObject as! NSString).appendingPathExtension("png")
 	}
 

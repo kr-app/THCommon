@@ -89,11 +89,11 @@ class THDistantItem: NSObject {
 	}
 
 	func parse(data: Data) -> String? {
-		fatalError("not implemented by subclass")
+		THFatalError("not implemented by subclass")
 	}
 
 	func parse(data: Data, withDelegate delegate: Any) -> String? {
-		fatalError("not implemented by subclass")
+		THFatalError("not implemented by subclass")
 	}
 
 }

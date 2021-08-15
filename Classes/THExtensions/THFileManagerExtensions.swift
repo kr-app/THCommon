@@ -39,7 +39,7 @@ extension FileManager {
 		return true
 	}
 
-	@objc class func th_securisedFileName(_ filename: String?, subsitution: String?) -> String? {
+	@objc class func th_secureFilename(_ filename: String?, subsitution: String?) -> String? {
 		guard var nName = filename
 		else {
 			return nil
