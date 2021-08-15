@@ -88,13 +88,10 @@ extension RelativeDateTimeFormatter {
 //--------------------------------------------------------------------------------------------------------------------------------------------
 extension NumberFormatter {
 
-	@objc class func th_string_decimal(from number: NSNumber?) -> String? {
-		if DfCache.numberFormatter_decimal == nil {
-			DfCache.numberFormatter_decimal = NumberFormatter()
-			DfCache.numberFormatter_decimal?.numberStyle = .decimal
-		}
-		return number == nil ? nil : DfCache.numberFormatter_decimal!.string(from: number!)
-	}
+	@objc static let th_decimal: NumberFormatter = { 	let formatter = NumberFormatter()
+																					formatter.numberStyle = .decimal
+																					return formatter
+																				}()
 
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------
@@ -103,13 +100,10 @@ extension NumberFormatter {
 //--------------------------------------------------------------------------------------------------------------------------------------------
 extension ByteCountFormatter {
 
-	@objc class func th_string_bin1024(from byteCount: Int64) -> String? {
-		if DfCache.byteCountFormatter_bin1024 == nil {
-			DfCache.byteCountFormatter_bin1024 = ByteCountFormatter()
-			DfCache.byteCountFormatter_bin1024?.countStyle = .binary
-		}
-		return DfCache.byteCountFormatter_bin1024!.string(fromByteCount: byteCount)
-	}
+	@objc static let th_bin1024: ByteCountFormatter = { 	let formatter = ByteCountFormatter()
+																						formatter.countStyle = .binary
+																						return formatter
+																					}()
 
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------
