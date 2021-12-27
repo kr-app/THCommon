@@ -21,10 +21,10 @@ fileprivate class DfCache {
 
 	private let currentCalendar = Calendar.current
 
-	@objc init(todayFormat: String, otherFormatter: DateFormatter? = nil) {
+	@objc init(todayFormat: String, otherFormat: String? = nil, otherFormatter: DateFormatter? = nil) {
 		super.init()
 		self.todayFormatter = todayFormat == "HM" ? DateFormatter.th_HM : DateFormatter.th_HMS
-		self.otherFormatter = otherFormatter
+		self.otherFormatter = otherFormatter ?? (otherFormat != nil ? DateFormatter(dateFormat: otherFormat!) : nil)
 	}
 
 	required init?(coder: NSCoder) {

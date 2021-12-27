@@ -19,6 +19,7 @@ class RssChannelItem: NSObject, THDictionarySerializationProtocol {
 
 	var checkedDate: Date?
 	var checked: Bool { get { return checkedDate != nil } }
+	//var readed = false
 	var pinned = false
 //	var wallDate: Date { get { 	return received/*let d: Date! = published ?? received
 //												if let checkedDate = checkedDate {
@@ -26,6 +27,8 @@ class RssChannelItem: NSObject, THDictionarySerializationProtocol {
 //												}
 //												return d*/
 //											}}
+
+	var articleImage: RssArticleImage?
 
 	override var description: String {
 		th_description("identifier: \(identifier) published: \(published) updated:\(updated) title: \(title?.th_truncate(maxChars: 20, by: .byTruncatingTail))")
@@ -55,8 +58,11 @@ class RssChannelItem: NSObject, THDictionarySerializationProtocol {
 		coder.setUrl(thumbnail, forKey: "thumbnail")
 
 		coder.setDate(checkedDate, forKey: "checkedDate")
+//		if readed == true {
+//			coder.setBool(readed, forKey: "readed")
+//		}
 		if pinned == true {
-			coder.setBool(true, forKey: "pinned")
+			coder.setBool(pinned, forKey: "pinned")
 		}
 
 		return coder
@@ -81,6 +87,7 @@ class RssChannelItem: NSObject, THDictionarySerializationProtocol {
 				checkedDate = Date().addingTimeInterval(-1.0.th_day)
 			}
 		}
+		//readed = dictionaryRepresentation.bool(forKey: "readed") ?? false
 		pinned = dictionaryRepresentation.bool(forKey: "pinned") ?? false
 
 		if identifier == "LINK" {
@@ -123,13 +130,11 @@ extension RssChannelItem {
 	}
 	
 	func contains(stringValue: String) -> Bool {
-		
 		for s in [self.title, self.content, self.link?.absoluteString] {
-			if s != nil && s!.contains(stringValue) == true {
+			if s != nil && s!.range(of: stringValue, options: .caseInsensitive) != nil {
 				return true
 			}
 		}
-		
 		return false
 	}
 

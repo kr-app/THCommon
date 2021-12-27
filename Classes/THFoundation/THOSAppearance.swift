@@ -3,40 +3,39 @@
 import Cocoa
 
 //--------------------------------------------------------------------------------------------------------------------------------------------
-fileprivate class Caches {
-	static var isDarkMode: Int = 0
-	static var universalAccess: (status: Int?, path: String?, dateMod: TimeInterval?) = (nil, nil, nil)
-}
-
+@available(*, deprecated)
 @objc class THOSAppearance: NSObject {
 	static let shared = THOSAppearance()
 
-	@objc class func updateDarkMode()  {
+	private static var p_isDarkMode: Int = 0
+	private static var p_universalAccess: (status: Int?, path: String?, dateMod: TimeInterval?) = (nil, nil, nil)
+
+	@objc class func updateDarkMode() {
 		if #available(macOS 10.14, *) {
-			Caches.isDarkMode = NSApplication.shared.effectiveAppearance.name == .darkAqua ? 1 : -1
+			p_isDarkMode = NSApplication.shared.effectiveAppearance.name == .darkAqua ? 1 : -1
 		} else {
-			Caches.isDarkMode = -1
+			p_isDarkMode = -1
 		}
 	}
 
 	@objc class func isDarkMode() -> Bool {
-		if Caches.isDarkMode == 0 {
+		if p_isDarkMode == 0 {
 			updateDarkMode()
 		}
-		return Caches.isDarkMode == 1
+		return p_isDarkMode == 1
 	}
 
 	@objc class func hasReduceTransparency() -> Bool {
 
 		THFatalError(THRunningApp.isSandboxedApp(), "isSandboxedApp")
 
-		if Caches.universalAccess.path == nil {
+		if p_universalAccess.path == nil {
 			let paths = NSSearchPathForDirectoriesInDomains(.libraryDirectory, .userDomainMask, true);
 			let path = (paths.first! as NSString).appendingPathComponent("Preferences/com.apple.universalaccess.plist")
-			Caches.universalAccess.path = path
+			p_universalAccess.path = path
 		}
 
-		let path = Caches.universalAccess.path!
+		let path = p_universalAccess.path!
 
 		if FileManager.default.fileExists(atPath: path) == false {
 			THLogError("file does not exist path:\(path)")
@@ -51,14 +50,14 @@ fileprivate class Caches {
 
 		let dateTi = date.timeIntervalSinceReferenceDate
 		
-		if let status = Caches.universalAccess.status,
-		   let date = Caches.universalAccess.dateMod {
+		if let status = p_universalAccess.status,
+		   let date = p_universalAccess.dateMod {
 			if dateTi == date {
 				return status == 1 ? true : false
 			}
 		}
 
-		Caches.universalAccess.dateMod = dateTi
+		p_universalAccess.dateMod = dateTi
 
 		let plist = NSDictionary(contentsOfFile: path)
 		if plist == nil {
@@ -82,10 +81,11 @@ fileprivate class Caches {
 			THLogError("not status from plist:\(plist)")
 		}
 
-		Caches.universalAccess.status = nStatus ?? -1
+		p_universalAccess.status = nStatus ?? -1
 
-		return Caches.universalAccess.status == 1 ? true : false
+		return p_universalAccess.status == 1 ? true : false
 	}
 	
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------
+

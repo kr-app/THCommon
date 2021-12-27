@@ -18,6 +18,7 @@ class RssChannel: THDistantItem, THDictionarySerializationProtocol {
 	var url: URL!
 	private var firstCreation = false
 
+	var disabled = false
 	var title: String?
 	var webLink: URL?
 	var poster: URL?
@@ -83,6 +84,7 @@ class RssChannel: THDistantItem, THDictionarySerializationProtocol {
 		coder.setDate(lastUpdate, forKey: "lastUpdate")
 		coder.setString(lastError, forKey: "lastError")
 
+		coder.setBool(disabled, forKey: "disabled")
 		coder.setString(title, forKey: "title")
 		coder.setUrl(webLink, forKey: "webLink")
 		coder.setUrl(poster, forKey: "poster")
@@ -119,6 +121,7 @@ class RssChannel: THDistantItem, THDictionarySerializationProtocol {
 		lastUpdate = dictionaryRepresentation.date(forKey: "lastUpdate")
 		lastError = dictionaryRepresentation.string(forKey: "lastError")
 		
+		disabled = dictionaryRepresentation.bool(forKey: "disabled") ?? false
 		title = dictionaryRepresentation.string(forKey: "title")
 		webLink = dictionaryRepresentation.url(forKey: "webLink") ?? dictionaryRepresentation.url(forKey: "link")
 		poster = dictionaryRepresentation.url(forKey:  "poster")
@@ -225,103 +228,25 @@ class RssChannel: THDistantItem, THDictionarySerializationProtocol {
 			}
 	
 			if mediaUrl == nil {
-				if let mUrl = item.value(named: "enclosure")?.attributes?["url"] as? String {
+				mediaUrl = extractMediaUrlFromEnclouse(item: item)
 
-					var take = false
-
-					var type = item.value(named: "enclosure")?.attributes?["type"] as? String
-					if type == nil {
-						type = item.value(named: "enclosure")?.attributes?["mimetype"] as? String
-					}
-
-					if let type = type {
-						if let uti = UTTypeCreatePreferredIdentifierForTag(kUTTagClassMIMEType, type as CFString, nil)?.takeRetainedValue() {
-							take = UTTypeConformsTo(uti, kUTTypeImage)
-						}
-					}
-					else {
-						take = true
-					}
-
-					if take == true {
-						mediaUrl = mUrl
-					}
-				}
-			}
-
-			if mediaUrl == nil {
-				
-//				if description?.contains("grimper.com") == true {
-//					print("")
-//				}
-
-				if let d = content as NSString?, d.length > 20 {
-				
-					let r = d.range(of: "<img src=\"", range: NSRange(location: 0, length: "<img src=\"".count))
-					if r.location != NSNotFound {
-						let srcEnd = d.range(of: "\"", range: NSRange(location: r.location + r.length, length: d.length - (r.location + r.length)))
-						if srcEnd.location != NSNotFound {
-							let src = d.substring(with: NSRange(location: r.location + r.length, length: srcEnd.location - (r.location + r.length)))
-							if URL(string: src) != nil {
-
-								if extracted_media_log_once == false {
-									extracted_media_log_once = true
-									THLogDebug("mediaUrl:\(mediaUrl) extracted from content text for item:\(item)")
-								}
-								mediaUrl = src
-
-								let tagEnd = d.range(of: "/>", range: NSRange(location: 0, length: d.length))
-								if tagEnd.location != NSNotFound {
-									content = d.substring(with: NSRange(location: tagEnd.location + tagEnd.length, length: d.length - (tagEnd.location + tagEnd.length)))
-								}
-							}
-						}
+				if mediaUrl == nil && content != nil {
+					mediaUrl = extractMediaUrlImgSrc(fromContent: content!)
+					if mediaUrl != nil && extracted_media_log_once == false {
+						extracted_media_log_once = true
+						THLogInfo("mediaUrl:\(mediaUrl) extracted from content text for item:\(item)")
 					}
 				}
 			}
 			
-			if content?.range(of: "<") != nil {
-				if let htmlContent = content {
-
-					var nc  = ""
-					var opened = 0
-					var charCount = 1
-					let maxChars = 300
-					
-					for (_, ch) in htmlContent.enumerated() {
-						if ch == "<" {
-							opened += 1
-							continue
-						}
-						if ch == ">" {
-							opened -= 1
-							continue
-						}
-						
-						if opened > 0 {
-							continue
-						}
-
-						charCount += 1
-						if charCount > maxChars {
-							break
-						}
-						nc += String(ch)
-					}
-					
-	//					let das = try NSAttributedString(		data: c.data(using: .unicode)!,
-	//																			options: [.documentType: NSAttributedString.DocumentType.html],
-	//																			documentAttributes: nil)
-	//					content = das.string
-	//				}
-	//				catch {
-	//					THLogError("can not created attributed string from content:\(c) error: \(error)")
-	//				}
-					
-					content = nc
+			if let link = link {
+				if link.contains("theskatingtimes.com") {
+					mediaUrl = nil
 				}
 			}
 
+			content = content?.th_purifiedHtmlBestAsPossible()
+			
 			guard let identifier = guid ?? link ?? date
 			else {
 				THLogError("can not obtain identifier for item:\(item)")
@@ -346,8 +271,37 @@ class RssChannel: THDistantItem, THDictionarySerializationProtocol {
 
 			if old_item != nil {
 				items.removeAll(where: { $0.identifier == identifier })
+
 				item.checkedDate = old_item!.checkedDate
 				item.pinned = old_item!.pinned
+				item.thumbnail = old_item?.thumbnail
+			}
+
+			if item.thumbnail == nil {
+				if let link = item.link {
+
+					if 	link.absoluteString.contains("aljazeera.com") ||
+						link.absoluteString.contains("lefigaro.fr") ||
+						link.absoluteString.contains("theskatingtimes.com") ||
+						link.absoluteString.contains("macg.co") ||
+						link.absoluteString.contains("macrumors.com") ||
+						link.absoluteString.contains("arstechnica") ||
+						link.absoluteString.contains("valeursactuelles.com") ||
+						link.absoluteString.contains("lopinion.fr") ||
+						link.absoluteString.contains("goldenskate.com") ||
+						link.absoluteString.contains("generation-trail.com")
+
+					{
+						item.articleImage = RssArticleImage(link: link)
+						item.articleImage!.start( {(ok: Bool, error: String?) in
+							if ok == false {
+								THLogError("link:\(link.absoluteString)")
+								return
+							}
+							item.thumbnail = item.articleImage?.extractedImage
+						})
+					}
+				}
 			}
 
 			if items.first(where: { $0.isLike(item) }) != nil {
@@ -380,6 +334,45 @@ class RssChannel: THDistantItem, THDictionarySerializationProtocol {
 		}
 
 		return nil
+	}
+
+	private  func extractMediaUrlFromEnclouse(item: THRSSFeedItem) -> String? {
+
+		guard let mUrl = item.value(named: "enclosure")?.attributes?["url"] as? String
+		else {
+			return nil
+		}
+
+		var take = false
+
+		var type = item.value(named: "enclosure")?.attributes?["type"] as? String
+		if type == nil {
+			type = item.value(named: "enclosure")?.attributes?["mimetype"] as? String
+		}
+
+		if let type = type {
+			if let uti = UTTypeCreatePreferredIdentifierForTag(kUTTagClassMIMEType, type as CFString, nil)?.takeRetainedValue() {
+				take = UTTypeConformsTo(uti, kUTTypeImage)
+			}
+		}
+		else {
+			take = true
+		}
+
+		return take == true ? mUrl : nil
+	}
+	
+	private func extractMediaUrlImgSrc(fromContent content: String) -> String? {
+		if content.count < 20 {
+			return nil
+		}
+
+		guard let src = content.th_search(firstRangeOf: "<img src=\"", endRange: "\"")
+		else {
+			return nil
+		}
+
+		return URL(string: src) != nil ? src : nil
 	}
 
 }

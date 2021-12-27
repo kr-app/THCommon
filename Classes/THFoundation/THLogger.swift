@@ -10,8 +10,7 @@
 class THLoggerConfig: NSObject {
 	var dirPath: String?
 	var retentionDays: TimeInterval = 30 * 24 * 3600
-	var appName = ProcessInfo.processInfo.processName
-	var rotationLogCount: Int = 100 * 1000
+	var rotationLogCount = 50_000
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -30,9 +29,8 @@ class THLoggerConfig: NSObject {
 	private var nbLogs = 0
 
 	private func prepateDirectory() {
-		var dirPath = config.dirPath
-		
-		if dirPath == nil {
+
+		func defaultLogDir() -> String {
 			let paths = NSSearchPathForDirectoriesInDomains(.libraryDirectory, .userDomainMask, true)
 			var logDir = paths.first!.th_appendingPathComponent("Logs")
 
@@ -44,20 +42,18 @@ class THLoggerConfig: NSObject {
 #elseif os(iOS)
 //			dir = paths.first
 #endif
-			dirPath = logDir.th_appendingPathComponent("THLog")
+
+			return logDir.th_appendingPathComponent("THLog")
 		}
 
-		guard let dirPath = dirPath
-		else {
-			return
-		}
-	
+		let dirPath = config.dirPath ?? defaultLogDir()
+		self.dirPath = dirPath
+
 		if FileManager.th_checkCreatedDirectory(atPath: dirPath) == false {
 			THLogError("th_checkCreatedDirectory == false dirPath:\(dirPath)")
 			return
 		}
 
-		self.dirPath = dirPath
 		purgeDirectory()
 
 		guard let fileHandler = createFileHandler()
@@ -69,6 +65,33 @@ class THLoggerConfig: NSObject {
 		self.fileHandler = fileHandler
 	}
 
+	private func compressLog(_ file: String) -> Bool {
+		guard let data = NSData(contentsOfFile: file)
+		else {
+			THLogError("data == nil file:\(file)")
+			return false
+		}
+
+		guard let compressed = try? data.compressed(using: .zlib)
+		else {
+			THLogError("compressed == nil file:\(file)")
+			return false
+		}
+
+		let path = (file as NSString).appendingPathExtension("zlib")!
+		if compressed.th_write(to: path) == false {
+			THLogError("th_write == false path:\(path)")
+			return false
+		}
+
+		if FileManager.default.th_removeItem(atPath: file) == false {
+			THLogError("removeItemAtPath == false file:\(file)")
+			return false
+		}
+
+		return true
+	}
+	
 	private func purgeDirectory() {
 		guard let dirPath = dirPath
 		else {
@@ -81,27 +104,42 @@ class THLoggerConfig: NSObject {
 			return
 		}
 
-		for filename in dirContents {
-			if filename.hasSuffix(".log") == false {
-				continue
-			}
-
+		for filename in dirContents.filter({ $0.hasPrefix(".") == false }) {
 			let path = dirPath.th_appendingPathComponent(filename)
-			guard let modDate = FileManager.th_modDate1970(atPath: path)
-			else {
-				THLogError("deleting old log file at path:\(path)")
-				continue
-			}
-		
-			if config.retentionDays > 0.0 && modDate.timeIntervalSinceNow > -config.retentionDays {
-				continue
+
+			if filename.hasSuffix(".log") == true || filename.hasSuffix(".zlib") == true {
+				
+				func deleteObsoleteFile(path: String) -> Bool {
+					guard let modDate = FileManager.th_modDate1970(atPath: path)
+					else {
+						THLogError("modDate == nil path:\(path)")
+						return false
+					}
+				
+					if config.retentionDays > 0.0 && modDate.timeIntervalSinceNow > -config.retentionDays {
+						return false
+					}
+
+					THLogInfo("deleting old log file at path:\(path)")
+
+					if FileManager.default.th_removeItem(atPath: path) == false {
+						THLogError("removeItemAtPath == false path:\(path)")
+					}
+
+					return true
+				}
+				
+				if deleteObsoleteFile(path: path) == true {
+					continue
+				}
 			}
 
-			THLogInfo("deleting old log file at path:\(path)")
-
-			if FileManager.default.th_removeItem(atPath: path) == false {
-				THLogError("removeItemAtPath == false path:\(path)")
+			if filename.hasSuffix(".log") == true {
+				if compressLog(path) == false {
+					THLogError("compressLog == false path:\(path)")
+				}
 			}
+
 		}
 	}
 
@@ -112,29 +150,32 @@ class THLoggerConfig: NSObject {
 		}
 
 		let m_pid = ProcessInfo.processInfo.processIdentifier
-		let appName = config.appName
-		var logPath: String? = nil
+		
+		func getLogPath(dirPath: String, m_pid: pid_t) -> String {
+			let appName = ProcessInfo.processInfo.processName
 
-		while logPath == nil {
-			let date = DateFormatter(dateFormat: "yyyy-MM-dd HH-mm-ss").string(from: Date())
-			let filename = "\(appName) \(m_pid) \(date).log"
-			let path = (dirPath as NSString).appendingPathComponent(filename)
+			while true {
+				let date = DateFormatter(dateFormat: "yyyy-MM-dd HH-mm-ss").string(from: Date())
+				let filename = "\(appName) \(date).log"
+				let path = (dirPath as NSString).appendingPathComponent(filename)
 	
-			if FileManager.default.fileExists(atPath: path) == true {
+				if FileManager.default.fileExists(atPath: path) == false {
+					return path
+				}
+		
 				THLogError("another file exists at path:\(path)")
 				Thread.sleep(forTimeInterval: 1.0)
-				continue
 			}
-
-			logPath = path
 		}
+		
+		let logPath = getLogPath(dirPath: dirPath, m_pid: m_pid)
 
-		if FileManager.default.createFile(atPath: logPath!, contents: nil, attributes: nil) == false {
+		if FileManager.default.createFile(atPath: logPath, contents: nil, attributes: nil) == false {
 			THLogError("can not create new log file, logPath:\(logPath)")
 			return nil
 		}
 
-		guard let fh = FileHandle(forWritingAtPath: logPath!)
+		guard let fh = FileHandle(forWritingAtPath: logPath)
 		else {
 			THLogError("can not fileHandler, logPath:\(logPath)")
 			return nil
@@ -152,14 +193,19 @@ class THLoggerConfig: NSObject {
 //		content.append("Build Date-Time: " + DateFormatter.th_string_YMD_HMS(fromDate: TH_AppDateCompiled()!)!)
 		content.append("\n")
 
-		fh.write(content.joined(separator: "\n").data(using: .utf8)!)
+		fh.th_write(content.joined(separator: "\n"))
 
 		return fh
 	}
 
 	@objc func write(_ log: String, for date: Date) {
+
 		if dirPath == nil {
-			prepateDirectory()
+			lock.lock()
+			if dirPath == nil {
+				prepateDirectory()
+			}
+			lock.unlock()
 		}
 
 		guard let fh = fileHandler
@@ -170,19 +216,19 @@ class THLoggerConfig: NSObject {
 		lock.lock()
 
 		nbLogs += 1
-		fh.write((dateFormatter.string(from: date) + " " + log + "\n").data(using: .utf8)!)
+		fh.th_write((dateFormatter.string(from: date) + " " + log + "\n"))
 
 		if nbLogs >= config.rotationLogCount {
-			fh.write("\nCLOSED".data(using: .utf8)!)
+			fh.th_write("\nCLOSED")
 
 #if os(macOS)
 			if #available(macOS 10.15, *) {
-				try! fh.close()
+				try? fh.close()
 			} else {
 				fh.closeFile()
 			}
 #elseif os(iOS)
-			try! fh.close()
+			try? fh.close()
 #endif
 
 			fileHandler = nil

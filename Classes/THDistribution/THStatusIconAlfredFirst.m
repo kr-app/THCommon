@@ -79,7 +79,7 @@
 	[[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"THStatusIconAlfredFirst:0"];
 }
 
-+ (instancetype)sharedInstance:(BOOL)allowCreation
++ (THStatusIconAlfredFirst*)sharedInstance:(BOOL)allowCreation
 {
 	static THStatusIconAlfredFirst *shared=nil;
 	if (shared==nil && allowCreation)

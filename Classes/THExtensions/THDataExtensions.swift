@@ -7,20 +7,27 @@
 #endif
 
 //-----------------------------------------------------------------------------------------------------------------------------------------
-extension Data {
+extension NSData {
 	
-	func th_write(to url: URL) -> Bool {
+	func th_write(to file: String, options: NSData.WritingOptions = [.atomic]) -> Bool {
 		do {
-			try write(to: url)
+			try write(toFile: file, options: options)
 			return true
 		}
 		catch {
-			THLogError("writeTo url:\(url) error: \(error)")
+			THLogError("writeToFile:options: file:\(file) error: \(error)")
 		}
 		return false
 	}
 
-	func th_write(to url: URL, options: Data.WritingOptions = []) -> Bool {
+}
+//-----------------------------------------------------------------------------------------------------------------------------------------
+
+
+//-----------------------------------------------------------------------------------------------------------------------------------------
+extension Data {
+	
+	func th_write(to url: URL, options: Data.WritingOptions = [.atomic]) -> Bool {
 		do {
 			try write(to: url, options: options)
 			return true

@@ -78,17 +78,17 @@ NSString *THFileSearchObjectUpdatedNotification=@"THFileSearchObjectUpdatedNotif
 
 	NSMutableString *ms=[NSMutableString string];
 	if (nbFiles>1)
-		[ms appendString:THLocalizedStringFormat(@"%@ files",[NSNumberFormatter th_string_decimalFrom:@(nbFiles)])];
+		[ms appendString:THLocalizedStringFormat(@"%@ files",[NSNumberFormatter.th_decimal stringFromNumber:@(nbFiles)])];
 	else if (nbFiles==1)
 		[ms appendString:THLocalizedString(@"1 file")];
 
 	if (nbDirs>1)
-		[ms appendFormat:@"%@%@",ms.length>0?@", ":@"",THLocalizedStringFormat(@"%@ directories",[NSNumberFormatter th_string_decimalFrom:@(nbDirs)])];
+		[ms appendFormat:@"%@%@",ms.length>0?@", ":@"",THLocalizedStringFormat(@"%@ directories",[NSNumberFormatter.th_decimal stringFromNumber:@(nbDirs)])];
 	else if (nbDirs==1)
 		[ms appendFormat:@"%@%@",ms.length>0?@", ":@"",THLocalizedString(@"1 directoriy")];
 
 	if (nbLinks>1)
-		[ms appendFormat:@"%@%@",ms.length>0?@", ":@"",THLocalizedStringFormat(@"%@ links",[NSNumberFormatter th_string_decimalFrom:@(nbLinks)])];
+		[ms appendFormat:@"%@%@",ms.length>0?@", ":@"",THLocalizedStringFormat(@"%@ links",[NSNumberFormatter.th_decimal stringFromNumber:@(nbLinks)])];
 	else if (nbLinks==1)
 		[ms appendFormat:@"%@%@",ms.length>0?@", ":@"",THLocalizedString(@"1 link")];
 

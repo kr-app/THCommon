@@ -91,16 +91,27 @@ extension HTTPURLResponse {
 
 //-----------------------------------------------------------------------------------------------------------------------------------------
 extension URL {
+
 	var th_reducedHost: String { get {
-		guard let host = self.host
-		else {
-			return self.absoluteString
+			guard let host = self.host
+			else {
+				return self.absoluteString
+			}
+			if host.hasPrefix("www.") == true {
+				return String(host.dropFirst("www.".count))
+			}
+			return host
 		}
-		if host.hasPrefix("www.") == true {
-			return String(host.dropFirst("www.".count))
-		}
-		return host
 	}
+
+	static func th_recomposedUrl(href: String, site: URL) -> URL? {
+		if href.hasPrefix("http") == true {
+			return URL(string: href)
+		}
+		if let sc = site.scheme, let h = site.host {
+			return URL(string: sc + "://" + h)?.appendingPathComponent(href)
+		}
+		return nil
 	}
 }
 //-----------------------------------------------------------------------------------------------------------------------------------------

@@ -8,14 +8,23 @@
 
 //-----------------------------------------------------------------------------------------------------------------------------------------
 @objc class THLogConsole: NSObject {
-	static let s_dateFormatter = DateFormatter(dateFormat: "HH:mm:ss.SSS")
-	static let s_homeDir = NSHomeDirectory()
+	static private let s_dateFormatter = DateFormatter(dateFormat: "HH:mm:ss.SSS")
+	static private let s_homeDir = NSHomeDirectory()
 
 	class func write(_ log: String, at date: Date) {
-		var r_log = log
-		if log.contains(s_homeDir) == true {
-			r_log = log.replacingOccurrences(of: s_homeDir, with: "/Users/XXX")
+		
+		func trimPersonal(_ log: String) -> String {
+#if os(iOS)
+			return log
+#else
+			if log.contains(s_homeDir) == true {
+				return log.replacingOccurrences(of: s_homeDir, with: "/Users/XXX")
+			}
+			return log
+#endif
 		}
+
+		let r_log = trimPersonal(log)
 		print(s_dateFormatter.string(from: date) + " " + r_log)
 	}
 }

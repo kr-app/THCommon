@@ -178,3 +178,35 @@ extension NSString {
 
 }
 //-----------------------------------------------------------------------------------------------------------------------------------------
+
+
+//-----------------------------------------------------------------------------------------------------------------------------------------
+extension String {
+
+	func th_hasPrefixInsensitive(_ prefix: String) -> Bool {
+		(self as NSString).range(of: prefix, options: .caseInsensitive).location == 0
+	}
+
+	func th_containsInsensitive(_ string: String) -> Bool {
+		(self as NSString).range(of: string, options: .caseInsensitive).location != NSNotFound
+	}
+
+	func th_search(firstRangeOf begin: String, endRange end: String) -> String? {
+
+		let fr = (self as NSString).range(of: begin)
+		if fr.location == NSNotFound {
+			return nil
+		}
+		let fre = fr.location + fr.length
+
+		let er = (self as NSString).range(of: end, range: NSRange(fre, self.count - fre))
+		if er.location == NSNotFound {
+			return nil
+		}
+
+		let r = (self as NSString).substring(with: NSRange(fre, er.location - fre))
+		return r.isEmpty == false ? r : nil
+	}
+
+}
+//-----------------------------------------------------------------------------------------------------------------------------------------

@@ -9,7 +9,7 @@ class RssChannelManager: NSObject {
 	static let channelUpdatedNotification = Notification.Name("RssChannelManager-channelUpdatedNotification")
 	static let channelItemUpdatedNotification = Notification.Name("RssChannelManager-channelItemUpdatedNotification")
 	
-	var filters = [RssChannelFilter]()
+	var filterManager: RssChannelFilterManager?
 	private(set) var channels = [RssChannel]()
 
 	private let dirPath = FileManager.th_appSupportPath("RssChannels")
@@ -22,8 +22,6 @@ class RssChannelManager: NSObject {
 		super.init()
 		loadChannels()
 	}
-
-	
 
 	private func loadChannels() {
 		let files = try! FileManager.default.contentsOfDirectory(	at: URL(fileURLWithPath: dirPath),
@@ -84,18 +82,21 @@ class RssChannelManager: NSObject {
 	}
 
 	func refresh(force: Bool = false) {
+		filterManager?.synchronize()
+		
 		if force == true {
 			for channel in channels {
 				channel.lastUpdate = nil
 			}
 		}
+	
 		startUpdateOfNextChannel()
 	}
 	
 	// MARK: -
 	
 	func recentRefDate() -> TimeInterval {
-		Date().timeIntervalSinceReferenceDate - 0.5.th_day
+		Date().timeIntervalSinceReferenceDate - 0.66.th_day
 	}
 
 	func channelsOnError() -> [RssChannel] {
@@ -201,7 +202,7 @@ class RssChannelManager: NSObject {
 		let now_time = now - refreshTI
 		let now_time_onerror = now - 30.0
 
-		let channels = self.channels.sorted(by: {
+		var channels = self.channels.sorted(by: {
 					if $0.lastUpdate == nil || $1.lastUpdate == nil {
 						return true
 					}
@@ -210,6 +211,10 @@ class RssChannelManager: NSObject {
 
 		for channel in channels {
 
+			if channel.disabled == true {
+				continue
+			}
+			
 			if let lu = channel.lastUpdate {
 				if lu.timeIntervalSinceReferenceDate > (channel.lastError != nil ? now_time_onerror : now_time) {
 					continue
@@ -259,11 +264,13 @@ class RssChannelManager: NSObject {
 extension RssChannelManager: RssChannelDelegate {
 	
 	func channel(_ channel: RssChannel, excludedItemByTitle title: String) -> Bool {
-		let url = channel.url.absoluteString
 
-		for filter in filters {
-			if filter.match(withHost: url, itemTitle: title) == true {
-				return true
+		if let filters = filterManager?.filters {
+			let url = channel.url.absoluteString
+			for filter in filters {
+				if filter.match(withHost: url, itemTitle: title) == true {
+					return true
+				}
 			}
 		}
 
@@ -298,17 +305,28 @@ extension RssChannelManager {
 		}
 	}
 
+	private func noteChange(for channel: RssChannel) {
+		channel.pendingSave = true
+		synchronise_delayed()
+		NotificationCenter.default.post(name: Self.channelUpdatedNotification, object: self, userInfo: ["channel": channel])
+	}
+
+	func setDisabled(_ disabled: Bool, channel channelId: String) {
+		guard let channel = channel(withId: channelId)
+		else {
+			return
+		}
+		channel.disabled = disabled
+		noteChange(for: channel)
+	}
+
 	func setUrl(_ url: URL, ofChannel channelId: String) {
 		guard let channel = channel(withId: channelId)
 		else {
 			return
 		}
-
 		channel.url = url
-
-		channel.pendingSave = true
-		synchronise_delayed()
-		NotificationCenter.default.post(name: Self.channelUpdatedNotification, object: self, userInfo: ["channel": channel])
+		noteChange(for: channel)
 	}
 
 	func markChecked(_ checked: Bool = true, item: RssChannelItem, ofChannel channelId: String) {
@@ -330,6 +348,25 @@ extension RssChannelManager {
 		synchronise_delayed()
 		NotificationCenter.default.post(name: Self.channelItemUpdatedNotification, object: self, userInfo: ["channel": channel, "item": item.identifier!])
 	}
+	
+//	func markReaded(_ readed: Bool = true, item: RssChannelItem, ofChannel channelId: String) {
+//		guard let channel = channel(withId: channelId)
+//		else {
+//		   return
+//		}
+//
+//		guard let r_item = channel.items.first(where: {$0.identifier == item.identifier! })
+//		else {
+//		   return
+//		}
+//
+//		item.readed = true
+//		r_item.readed = true
+//
+//		channel.pendingSave = true
+//		synchronise_delayed()
+//		NotificationCenter.default.post(name: Self.channelItemUpdatedNotification, object: self, userInfo: ["channel": channel, "item": item.identifier!])
+//	}
    
 	func markPinned(pinned: Bool, item: RssChannelItem, ofChannel channelId: String) {
 		guard let channel = channel(withId: channelId)
@@ -348,6 +385,18 @@ extension RssChannelManager {
 		channel.pendingSave = true
 		synchronise()
 		NotificationCenter.default.post(name: Self.channelItemUpdatedNotification, object: self, userInfo: ["channel": channel, "item": item.identifier!])
+   }
+
+	func clean(channel channelId: String) {
+		guard let channel = channel(withId: channelId)
+		else {
+			return
+		}
+
+		channel.items.removeAll()
+
+		channel.pendingSave = true
+		synchronise()
    }
 
 }

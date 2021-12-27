@@ -12,7 +12,7 @@ class THDistantItem: NSObject {
 	private var task: URLSessionTask?
 
 	func updateRequest() -> URLRequest {
-		fatalError("not implemented by subclass")
+		THFatalError("not implemented by subclass")
 	}
 	
 	func concludeUpdate(withError error: String?) {
@@ -27,7 +27,7 @@ class THDistantItem: NSObject {
 
 		let request = updateRequest()
 	
-		THLogInfo("update requested with url:\(request.url)")
+		THLogInfo("update, request:\(request.url), object:\(self)")
 
 		self.lastUpdate = Date()
 		let t0 = CFAbsoluteTimeGetCurrent()

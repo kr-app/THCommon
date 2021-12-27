@@ -7,13 +7,6 @@
 #endif
 
 //--------------------------------------------------------------------------------------------------------------------------------------------
-fileprivate class RunningAppCache {
-	static var isSandboxed = 0
-}
-//--------------------------------------------------------------------------------------------------------------------------------------------
-
-
-//--------------------------------------------------------------------------------------------------------------------------------------------
 @objc class THRunningApp: NSObject {
 
 	@objc static let bundleIdentifier = Bundle.main.bundleIdentifier!
@@ -25,6 +18,7 @@ fileprivate class RunningAppCache {
 		@objc static let processId = NSRunningApplication.current.processIdentifier
 	#endif
 
+	private static var isSandboxed = 0
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -34,11 +28,11 @@ fileprivate class RunningAppCache {
 extension THRunningApp {
 
 	@objc class func isSandboxedApp() -> Bool {
-		if RunningAppCache.isSandboxed == 0 {
+		if Self.isSandboxed == 0 {
 			let environment = ProcessInfo.processInfo.environment
-			RunningAppCache.isSandboxed = environment["APP_SANDBOX_CONTAINER_ID"] != nil ? 1 : -1
+			Self.isSandboxed = environment["APP_SANDBOX_CONTAINER_ID"] != nil ? 1 : -1
 		}
-		return RunningAppCache.isSandboxed == 1
+		return Self.isSandboxed == 1
 	}
 
 	@objc class func buildDate() -> Date? {
