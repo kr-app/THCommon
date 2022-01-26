@@ -263,8 +263,7 @@ class THHostFilter: NSObject, THDictionarySerializationProtocol {
 	}
 
 	func synchronize() -> Bool {
-		let dir = FileManager.th_appSupportPath()
-		let path = dir.th_appendingPathComponent("THHostFilter-\(self.name!).plist")
+		let path = FileManager.th_appSupportPath().th_appendingPathComponent("THHostFilter-\(self.name!).plist")
 
 		if dictionaryRepresentation().write(toFile: path) == false {
 			THLogError("dictionaryRepresentation().write == false path:\(path)")

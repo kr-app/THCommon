@@ -7,23 +7,7 @@ import Cocoa
 @objc class THOSAppearance: NSObject {
 	static let shared = THOSAppearance()
 
-	private static var p_isDarkMode: Int = 0
 	private static var p_universalAccess: (status: Int?, path: String?, dateMod: TimeInterval?) = (nil, nil, nil)
-
-	@objc class func updateDarkMode() {
-		if #available(macOS 10.14, *) {
-			p_isDarkMode = NSApplication.shared.effectiveAppearance.name == .darkAqua ? 1 : -1
-		} else {
-			p_isDarkMode = -1
-		}
-	}
-
-	@objc class func isDarkMode() -> Bool {
-		if p_isDarkMode == 0 {
-			updateDarkMode()
-		}
-		return p_isDarkMode == 1
-	}
 
 	@objc class func hasReduceTransparency() -> Bool {
 

@@ -36,6 +36,8 @@
 
 - (void)drawRect:(NSRect)dirtyRect
 {
+	BOOL isDark=[self.effectiveAppearance.name isEqualToString:NSAppearanceNameDarkAqua];
+
 	NSSize arrowSize=NSMakeSize(20.0,12.0);
 	NSBezierPath *bezierPath=[NSBezierPath bezierPathWithRoundedRect:self.bounds
 																	borderLineWidth:0.0
@@ -44,11 +46,7 @@
 																	arrowPosition:1
 																	arrowSize:arrowSize];
 
-	if ([THOSAppearance isDarkMode]==YES)
-		[[NSColor colorWithCalibratedWhite:0.0 alpha:0.5] set];
-	else
-		[[NSColor colorWithCalibratedWhite:1.0 alpha:1.0] set];
-
+	[[NSColor colorWithCalibratedWhite:isDark?0.0:1.0 alpha:isDark?0.5:1.0] set];
 	[bezierPath fill];
 }
 
@@ -114,16 +112,16 @@
 	AlfredFirstView *alfredFirstView=[[AlfredFirstView alloc] initWithFrame:NSMakeRect(0.0, 0.0, 480.0, 67.0)];
 	_view=alfredFirstView;
 
-	BOOL dark=[THOSAppearance isDarkMode];
+	BOOL isDark=[[NSApplication sharedApplication].effectiveAppearance.name isEqualToString:NSAppearanceNameDarkAqua];
 
-	NSColor *tColor=[NSColor colorWithCalibratedWhite:dark==YES?1.0:0.0 alpha:1.0];
+	NSColor *tColor=[NSColor colorWithCalibratedWhite:isDark==YES?1.0:0.0 alpha:1.0];
 
 	NSDictionary *b_attrs=@{	NSFontAttributeName:[NSFont boldSystemFontOfSize:[NSFont systemFontSizeForControlSize:NSControlSizeRegular]],
 												NSForegroundColorAttributeName:tColor};
 	NSMutableAttributedString *mas=[[NSMutableAttributedString alloc] initWithString:[THRunningApp appName] attributes:b_attrs];
 
-	NSDictionary *attrs=@{		NSFontAttributeName:[NSFont systemFontOfSize:[NSFont systemFontSizeForControlSize:NSControlSizeRegular]],
-												NSForegroundColorAttributeName:tColor};
+	NSDictionary *attrs=@{	NSFontAttributeName:[NSFont systemFontOfSize:[NSFont systemFontSizeForControlSize:NSControlSizeRegular]],
+											NSForegroundColorAttributeName:tColor};
 	[mas appendAttributedString:[[NSAttributedString alloc] initWithString:@" " attributes:attrs]];
 	[mas appendAttributedString:[[NSAttributedString alloc] initWithString:THLocalizedString(@"ALFRED_FIRST_STARTED_FROM_MENU_BAR") attributes:attrs]];
 

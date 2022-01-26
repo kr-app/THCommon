@@ -9,12 +9,12 @@
 //--------------------------------------------------------------------------------------------------------------------------------------------
 fileprivate class Icon : NSObject {
 
-	var repObject: AnyObject!
+	var repObject: AnyHashable!
 	var content: TH_NSUI_Image?
 	var task: URLSessionTask?
 	var error: String?
 
-	init(repObject: AnyObject) {
+	init(repObject: AnyHashable) {
 		self.repObject = repObject
 	}
 
@@ -38,8 +38,9 @@ class IconDownloader: NSObject {
 	var roundedIcon = false
 	var cornerRadius: CGFloat = 0.0
 	var excludedHosts: [String]?
+	var inMemory = 0
 
-	private var icons = [AnyHashable: Icon]()
+	private var icons = [Icon]()
 	private var cacheDir: String?
 	private let urlSession = URLSession(configuration: URLSessionConfiguration.th_ephemeral())
 
@@ -114,7 +115,7 @@ class IconDownloader: NSObject {
 
 	// MARK: -
 	
-	fileprivate func proposedFilename(forRepObject repObject: AnyObject) -> String? {
+	fileprivate func proposedFilename(forRepObject repObject: AnyHashable) -> String? {
 		fatalError("subclass implementation")
 	}
 
@@ -154,18 +155,13 @@ class IconDownloader: NSObject {
 
 	// MARK: -
 	
-	fileprivate func hasData(forRepObject repObject: AnyObject?) -> Bool {
-		guard let ko = repObject as? AnyHashable
-		else {
-			return false
-		}
-	
-		let icon = icons[ko]
+	fileprivate func hasData(forRepObject repObject: AnyHashable) -> Bool {
+		let icon = icons.first(where: { $0.repObject == repObject })
 		if icon != nil && icon!.content != nil {
 			return true
 		}
 
-		guard let file = proposedFilename(forRepObject: repObject!)
+		guard let file = proposedFilename(forRepObject: repObject)
 		else {
 			return false
 		}
@@ -174,40 +170,40 @@ class IconDownloader: NSObject {
 		return FileManager.default.fileExists(atPath: path)
 	}
 
-	fileprivate func error(forRepObject repObject: AnyObject?) -> String? {
-		guard let ko = repObject as? AnyHashable
-		else {
-			return nil
-		}
-
-		if let icon = icons[ko] {
+	fileprivate func error(forRepObject repObject: AnyHashable) -> String? {
+		if let icon = icons.first(where:  { $0.repObject == repObject }) {
 			return icon.error
 		}
-
 		return nil
 	}
 	
-	fileprivate func icon(withRepObject repObject: AnyObject, startUpdate: Bool) -> Icon? {
-		guard let ro = repObject as? AnyHashable
+	private func addIcon(with repObject: AnyHashable) -> Icon? {
+		if repObject is URL || repObject is String {
+			let icon = Icon(repObject: repObject)
+			icons.append(icon)
+			if inMemory > 0 && icons.count > inMemory {
+				icons.remove(at: 0)
+			}
+			return icon
+		}
+		return nil
+	}
+	
+	fileprivate func icon(withRepObject repObject: AnyHashable, startUpdate: Bool) -> Icon? {
+
+		var icon = icons.first(where:  { $0.repObject == repObject })
+		if icon == nil {
+			icon = addIcon(with: repObject)
+		}
+		
+		guard let icon = icon
 		else {
 			return nil
-		}
-	
-		var icon = icons[ro]
-
-		if icon == nil {
-			if repObject is URL || repObject is String {
-				icon = Icon(repObject: repObject)
-				icons[ro] = icon
-			}
-			else {
-				return nil
-			}
 		}
 
 		var needsUpdate = false
 
-		if icon!.content == nil && cacheDir != nil {
+		if icon.content == nil && cacheDir != nil {
 			if let file = proposedFilename(forRepObject: repObject) {
 				let path = cacheDir!.th_appendingPathComponent(file)
 
@@ -226,7 +222,7 @@ class IconDownloader: NSObject {
 						}
 					}
 					else {
-						icon!.content = processReceivedIcon(icon: img!)
+						icon.content = processReceivedIcon(icon: img!)
 
 						if validity > 0.0 {
 							let modDate = FileManager.th_modDate1970(atPath: path)
@@ -244,33 +240,28 @@ class IconDownloader: NSObject {
 			}
 		}
 	
-		if startUpdate == true && (icon!.content == nil || needsUpdate == true) {
-			if icon!.error == nil {
-				startConnection(ofIcon: icon!)
+		if startUpdate == true && (icon.content == nil || needsUpdate == true) {
+			if icon.error == nil {
+				startConnection(ofIcon: icon)
 			}
 		}
 
-		return icon!
+		return icon
 	}
 
-	fileprivate func loadIcon(forRepObject repObject: AnyObject?) {
-		guard let ko = repObject as? AnyHashable
+	fileprivate func loadIcon(forRepObject repObject: AnyHashable) {
+		
+		var icon = icons.first(where:  { $0.repObject == repObject })
+		if icon == nil {
+			icon = addIcon(with: repObject)
+		}
+		
+		guard let icon = icon
 		else {
 			return
 		}
 
-		var icon = icons[ko]
-		if icon == nil {
-			if repObject is URL || repObject is String {
-				icon = Icon(repObject: repObject!)
-				icons[ko] = icon!
-			}
-			else {
-				return
-			}
-		}
-
-		startConnection(ofIcon: icon!)
+		startConnection(ofIcon: icon)
 	}
 
 	fileprivate func removeIcon(atURL url: URL?) {
@@ -401,7 +392,7 @@ class THIconDownloader: IconDownloader {
 
 	var delegate: THIconDownloaderDelegateProtocol?
 
-	override func proposedFilename(forRepObject repObject: AnyObject) -> String? {
+	override func proposedFilename(forRepObject repObject: AnyHashable) -> String? {
 		var fn = (repObject as! URL).path
 		if fn.hasPrefix("/") {
 			fn = String(fn.dropFirst(1))
@@ -441,7 +432,8 @@ class THIconDownloader: IconDownloader {
 				return nil
 			}
 		}
-		let icon = url == nil ? nil : super.icon(withRepObject: url! as AnyObject, startUpdate: startUpdate)
+	
+		let icon = url == nil ? nil : super.icon(withRepObject: url! as AnyHashable, startUpdate: startUpdate)
 		return icon?.content
 	}
 
@@ -450,16 +442,18 @@ class THIconDownloader: IconDownloader {
 		else {
 			return false
 		}
+	
 		if let excludedHosts = excludedHosts, let host = url.host {
 			if excludedHosts.contains(host) == true {
 				return false
 			}
 		}
-		return super.hasData(forRepObject: url as AnyObject)
+
+		return super.hasData(forRepObject: url as AnyHashable)
 	}
 
 	func error(forIconUrl url: URL?) -> String? {
-		return url == nil ? nil : super.error(forRepObject: url! as AnyObject)
+		return url == nil ? nil : super.error(forRepObject: url! as AnyHashable)
 	}
 
 	func loadIcon(atURL url: URL?) {
@@ -467,12 +461,14 @@ class THIconDownloader: IconDownloader {
 		else {
 			return
 		}
+	
 		if let excludedHosts = excludedHosts, let host = url.host {
 			if excludedHosts.contains(host) == true {
 				return
 			}
 		}
-		super.loadIcon(forRepObject: url as AnyObject)
+		
+		super.loadIcon(forRepObject: url as AnyHashable)
 	}
 
 }
@@ -501,7 +497,7 @@ class THIconDownloader: IconDownloader {
 		super.init(identifier: identifier, cacheDir: cacheDir)
 	}
 
-	override func proposedFilename(forRepObject repObject: AnyObject) -> String? {
+	override func proposedFilename(forRepObject repObject: AnyHashable) -> String? {
 		return (repObject as! NSString).appendingPathExtension("png")
 	}
 
@@ -526,6 +522,7 @@ class THIconDownloader: IconDownloader {
 		else {
 			return allowsGeneric == true ? genericIcon16 : nil
 		}
+		
 		if host.isEmpty == true || host.contains("/") == true {
 			THLogError("incorrect host name host:\(host)")
 			return allowsGeneric == true ? genericIcon16 : nil
@@ -533,7 +530,8 @@ class THIconDownloader: IconDownloader {
 		if excludedHosts != nil && excludedHosts!.contains(host) == true {
 			return allowsGeneric == true ? genericIcon16 : nil
 		}
-		let icon = super.icon(withRepObject: host as AnyObject, startUpdate: startUpdate)
+		
+		let icon = super.icon(withRepObject: host as AnyHashable, startUpdate: startUpdate)
 		return icon?.content ?? (allowsGeneric == true ? genericIcon16 : nil)
 	}
 

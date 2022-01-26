@@ -5,7 +5,7 @@ import Cocoa
 //--------------------------------------------------------------------------------------------------------------------------------------------
 class THSafariScriptingTools: NSObject {
 
-	class func createWindowIfNecessary() -> Bool {
+	/*class func createWindowIfNecessary() -> Bool {
 		
 		var script: THAsScript?
 
@@ -63,7 +63,7 @@ class THSafariScriptingTools: NSObject {
 		THLogInfo("scrupt result:\(script!.resultAed)")
 
 		return true
-	}
+	}*/
 	
 	class func sourceOfFrontSite(targetUrl: String) -> String? {
 

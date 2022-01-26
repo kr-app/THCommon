@@ -8,7 +8,7 @@ class THNSButtonBlock: NSButton {
 																	self.action = #selector(button_action)
 													}}
 
-	@objc func button_action(_ sender: NSButton) {
+	@objc private func button_action(_ sender: NSButton) {
 		actionBlock?()
 	}
 

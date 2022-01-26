@@ -174,7 +174,7 @@
 - (void)drawRect:(NSRect)dirtyRect
 {
 	NSSize frameSz=self.frame.size;
-	BOOL dark=[THOSAppearance isDarkMode];
+	BOOL dark=[[self effectiveAppearance].name isEqualToString:NSAppearanceNameDarkAqua];
 
 	// border
 	if (_isEnabled==NO)

@@ -97,11 +97,13 @@ protocol THSafariListParserProtocol: AnyObject {
 
 class THSafariList: NSObject {
 	static let shared = THSafariList()
+	
+	private let bookmarksFilePath = ("~/Library/Safari/Bookmarks.plist" as NSString).expandingTildeInPath
 	private var bookmarksModDate: Date?
 
 	func canBookmarksAccess() -> (canAccess: Bool, reason: String?) {
 
-		let path = ("~/Library/Safari/Bookmarks.plist" as NSString).expandingTildeInPath
+		let path = bookmarksFilePath
 
 		if FileManager.default.fileExists(atPath: path) == false {
 			return (false, THLocalizedString("Bookmarks file does not exist"))
@@ -212,7 +214,7 @@ class THSafariList: NSObject {
 			return true
 		}
 
-		let path = ("~/Library/Safari/Bookmarks.plist" as NSString).expandingTildeInPath
+		let path = bookmarksFilePath
 
 		let modDate = FileManager.th_modDate1970(atPath: path)
 		if modDate == nil {
@@ -229,7 +231,7 @@ class THSafariList: NSObject {
 
 	func fetchBookmarks(parser: THSafariListParserProtocol?) -> (results: [AnyObject]?, error: String?) {
 
-		let path = ("~/Library/Safari/Bookmarks.plist" as NSString).expandingTildeInPath
+		let path = bookmarksFilePath
 
 		if FileManager.default.fileExists(atPath: path) == false {
 			THLogError("fileExistsAtPath == false path:\(path)")
@@ -243,7 +245,7 @@ class THSafariList: NSObject {
 
 		let modDate = FileManager.th_modDate1970(atPath: path)
 		if modDate == nil {
-			THLogError("modDate == nil path\(path)")
+			THLogError("modDate == nil path:\(path)")
 			return (nil, THLocalizedString("Can not get modificaion date of bookmarks file"))
 		}
 

@@ -15,7 +15,7 @@ class THOpenInBrowser {
 	func browsers() -> [[String: Any]] {
 		var browsers = [[String: Any]]()
 
-		for br in [		["name": "safari", "path": "/Applications/Safari.app"],
+		for br in [		//["name": "safari", "path": "/Applications/Safari.app"],
 							["name": "firefox", "path": "/Applications/Firefox.app"],
 							["name": "firefox", "path": ("~/Applications/Firefox.app" as NSString).expandingTildeInPath]] {
 

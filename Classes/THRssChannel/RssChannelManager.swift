@@ -202,7 +202,7 @@ class RssChannelManager: NSObject {
 		let now_time = now - refreshTI
 		let now_time_onerror = now - 30.0
 
-		var channels = self.channels.sorted(by: {
+		let channels = self.channels.sorted(by: {
 					if $0.lastUpdate == nil || $1.lastUpdate == nil {
 						return true
 					}
