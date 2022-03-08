@@ -14,18 +14,18 @@ protocol THDictionaryRepresentationProtocol {
 class THDictionaryRepresentation {
 	var values = [String: Any]()
 
-	func setObject(_ object: Any?, forKey key: String) {
-		values[key] = object
+	func setObject(_ object: THDictionaryRepresentationProtocol?, forKey key: String) {
+		values[key] = object?.dictionaryRepresentation().values
 	}
 
 	func setObjects(_ objects: [THDictionaryRepresentationProtocol]?, forKey key: String) {
 		values[key] = objects?.map( { $0.dictionaryRepresentation().values } )
 	}
 
-	func setDictionaryRepresentation(_ dictionaryRepresentation: THDictionaryRepresentation, forKey key: String) {
-		values[key] = dictionaryRepresentation.values
+	func setAnyValue(_ value: Any?, forKey key: String) {
+		values[key] = value
 	}
-	
+
 	func setString(_ string: String?, forKey key: String) {
 		values[key] = string
 	}
@@ -52,16 +52,16 @@ class THDictionaryRepresentation {
 	}
 #endif
 
-	func object(forKey key: String) -> Any? {
+	func anyValue(forKey key: String) -> Any? {
 		return values[key]
 	}
 
-	func dictionaryRepresentation(forKey key: String) -> THDictionaryRepresentation? {
-		if let values = values[key] as? [String: Any] {
-			return THDictionaryRepresentation(values: values)
-		}
-		return nil
-	}
+//	func dictionaryRepresentation(forKey key: String) -> THDictionaryRepresentation? {
+//		if let values = values[key] as? [String: Any] {
+//			return THDictionaryRepresentation(values: values)
+//		}
+//		return nil
+//	}
 
 	func string(forKey key: String) -> String? {
 		return values[key] as? String
@@ -107,7 +107,7 @@ class THDictionaryRepresentation {
 	init() {
 	}
 
-	fileprivate init(values: [String: Any]) {
+	init(values: [String: Any]) {
 		self.values = values
 	}
 
@@ -146,13 +146,19 @@ extension THDictionarySerializationProtocol {
 		return Self.init(withDictionaryRepresentation: dictionaryRepresentation)
 	}
 
+	static func th_object(fromDictionaryRepresentation dictionaryRepresentation: THDictionaryRepresentation?, forKey key: String) -> Self? {
+		if let values = dictionaryRepresentation?.values[key] as? [String: Any] {
+			return Self(withDictionaryRepresentation: THDictionaryRepresentation(values: values))
+		}
+		return nil
+	}
+
 	static func th_objects(fromDictionaryRepresentation dictionaryRepresentation: THDictionaryRepresentation?, forKey key: String) -> [Self]? {
-		if let dr = (dictionaryRepresentation?.values[key]) as? [[String: Any]] {
+		if let dr = dictionaryRepresentation?.values[key] as? [[String: Any]] {
 			return dr.map( { Self(withDictionaryRepresentation: THDictionaryRepresentation(values: $0)) } )
 		}
 		return nil
 	}
-	
-	
+
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------

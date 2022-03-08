@@ -12,7 +12,7 @@ class RssChannelManager: NSObject {
 	var filterManager: RssChannelFilterManager?
 	private(set) var channels = [RssChannel]()
 
-	private let dirPath = FileManager.th_appSupportPath("RssChannels")
+	private let dirPath = FileManager.th_documentsPath("RssChannels")
 	private var urlSession = URLSession(configuration: URLSessionConfiguration.th_ephemeral())
 	private var synchronizeTimer: Timer?
 	

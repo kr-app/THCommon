@@ -22,7 +22,7 @@ import Cocoa
 	}
 
 	@objc func displayTitle(_ maxLength: CGFloat, withAttrs  attrs: [NSAttributedString.Key: Any]) -> String? {
-		if let t = self.title ?? self.url?.th_lastPathComponent() {
+		if let t = self.title ?? self.url?.th_lastPathComponent {
 			return t.th_truncate(maxLength: maxLength, withAttrs: attrs, by: .byTruncatingTail, substitutor: "")
 		}
 		return nil

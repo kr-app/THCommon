@@ -39,6 +39,7 @@ fileprivate class Cached {
 											//,@"?",@"*", ";" // autre que macOS
 	static var legalCharSets: [CharacterSet] = [.newlines, .illegalCharacters, .controlCharacters, .symbols]
 
+	static var documentsDirPath: String?
 	static var appSupportDirPath: String?
 	static var cachesDirPath: String?
 }
@@ -107,6 +108,44 @@ extension FileManager {
 		}
 
 		return true
+	}
+
+	@objc class func th_documentsPath(_ dirComponent: String? = nil) -> String {
+		
+		if Cached.documentsDirPath == nil {
+			let paths = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)
+			
+			var dir: String!
+			
+#if os(macOS)
+			if THRunningApp.isSandboxedApp() == true {
+				dir = paths.first
+			}
+			else {
+				let bundleId = Bundle.main.bundleIdentifier!
+				dir = paths.first!.th_appendingPathComponent(bundleId)
+			}
+#elseif os(iOS)
+			dir = paths.first
+#endif
+
+			if th_checkCreatedDirectory(atPath: dir) == false {
+				THFatalError(true, "th_checkCreatedDirectory == false dir:\(dir)")
+			}
+	
+			Cached.documentsDirPath = dir
+		}
+		
+		if dirComponent == nil {
+			return Cached.documentsDirPath!
+		}
+		
+		let dirPath = Cached.documentsDirPath!.th_appendingPathComponent(dirComponent!)
+		if th_checkCreatedDirectory(atPath: dirPath) == false {
+			THFatalError(true, "th_checkCreatedDirectory == false dirPath:\(dirPath)")
+		}
+		
+		return dirPath
 	}
 
 	@objc class func th_appSupportPath(_ dirComponent: String? = nil) -> String {

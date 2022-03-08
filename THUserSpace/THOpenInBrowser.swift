@@ -15,7 +15,7 @@ class THOpenInBrowser {
 	func browsers() -> [[String: Any]] {
 		var browsers = [[String: Any]]()
 
-		for br in [		//["name": "safari", "path": "/Applications/Safari.app"],
+		for br in [	//	["name": "safari", "path": "/Applications/Safari.app"],
 							["name": "firefox", "path": "/Applications/Firefox.app"],
 							["name": "firefox", "path": ("~/Applications/Firefox.app" as NSString).expandingTildeInPath]] {
 
@@ -37,7 +37,6 @@ class THOpenInBrowser {
 	}
 
 	func open(url: URL, completion: @escaping (Bool) -> Void) {
-	
 		var browser = mBrowsers.first(where: { ($0["name"] as! String) == self.browser })?["url"] as? URL
 		if browser == nil {
 			browser = mBrowsers.first!["url"] as? URL

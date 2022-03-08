@@ -26,13 +26,13 @@ class RssChannelFilterString: NSObject, THDictionarySerializationProtocol {
 	func dictionaryRepresentation() -> THDictionaryRepresentation {
 		let coder = THDictionaryRepresentation()
 		coder.setInt(mode.rawValue, forKey: "mode")
-		coder.setObject(value, forKey: "value")
+		coder.setAnyValue(value, forKey: "value")
 		return coder
 	}
 
 	required init(withDictionaryRepresentation dictionaryRepresentation: THDictionaryRepresentation) {
 		mode = RssChannelFilterStringMode(rawValue: dictionaryRepresentation.int(forKey: "mode")!)!
-		value = dictionaryRepresentation.object(forKey: "value") ?? dictionaryRepresentation.string(forKey: "string")!
+		value = dictionaryRepresentation.anyValue(forKey: "value") ?? dictionaryRepresentation.string(forKey: "string")!
 	}
 
 }
@@ -93,14 +93,14 @@ class RssChannelFilter: NSObject, THDictionarySerializationProtocol {
 		let coder = THDictionaryRepresentation()
 		coder.setInt(kind.rawValue, forKey: "kind")
 		coder.setString(host, forKey: "host")
-		coder.setDictionaryRepresentation(titleFilter.dictionaryRepresentation(), forKey: "titleFilter")
+		coder.setObject(titleFilter, forKey: "titleFilter")
 		return coder
 	}
 
 	required init(withDictionaryRepresentation dictionaryRepresentation: THDictionaryRepresentation) {
 		kind = RssChannelFilterKind(rawValue: dictionaryRepresentation.int(forKey: "kind")!)!
 		host = dictionaryRepresentation.string(forKey: "host")
-		titleFilter = RssChannelFilterString(withDictionaryRepresentation: dictionaryRepresentation.dictionaryRepresentation(forKey: "titleFilter") ?? dictionaryRepresentation.dictionaryRepresentation(forKey: "title")!)
+		titleFilter = RssChannelFilterString.th_object(fromDictionaryRepresentation: dictionaryRepresentation, forKey: "titleFilter") ?? RssChannelFilterString.th_object(fromDictionaryRepresentation: dictionaryRepresentation, forKey: "title")!
 	}
 
 }

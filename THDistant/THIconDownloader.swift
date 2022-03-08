@@ -6,6 +6,21 @@
 	import UIKit
 #endif
 
+
+//--------------------------------------------------------------------------------------------------------------------------------------------
+class THIconDownloaderConfiguration {
+	var validity: TimeInterval = 7.0.th_day
+	var storeProcessed = false
+	var maxSize: CGFloat = 0.0
+	var cropIcon = false
+	var roundedIcon = false
+	var cornerRadius: CGFloat = 0.0
+	var excludedHosts: [String]?
+	var inMemory = 0
+}
+//--------------------------------------------------------------------------------------------------------------------------------------------
+
+
 //--------------------------------------------------------------------------------------------------------------------------------------------
 fileprivate class Icon : NSObject {
 
@@ -29,16 +44,7 @@ fileprivate class Icon : NSObject {
 //--------------------------------------------------------------------------------------------------------------------------------------------
 class IconDownloader: NSObject {
 	var identifier: String!
-
-	// configuration
-	var validity: TimeInterval = 7.0.th_day
-	var storeProcessed = false
-	var maxSize: CGFloat = 0.0
-	var cropIcon = false
-	var roundedIcon = false
-	var cornerRadius: CGFloat = 0.0
-	var excludedHosts: [String]?
-	var inMemory = 0
+	var configuration = THIconDownloaderConfiguration()
 
 	private var icons = [Icon]()
 	private var cacheDir: String?
@@ -127,14 +133,14 @@ class IconDownloader: NSObject {
 		var img = icon
 
 #if os(macOS)
-		if maxSize > 0.0 {
-			img = img.th_resizedImage(withMaxSize: maxSize, crop: cropIcon)
+		if configuration.maxSize > 0.0 {
+			img = img.th_resizedImage(withMaxSize: configuration.maxSize, crop: configuration.cropIcon)
 		}
-		if roundedIcon == true {
+		if configuration.roundedIcon == true {
 			img = img.th_imageOval()
 		}
-		else if cornerRadius > 0.0 {
-			img = img.th_image(withCorner: cornerRadius)
+		else if configuration.cornerRadius > 0.0 {
+			img = img.th_image(withCorner: configuration.cornerRadius)
 		}
 #endif
 
@@ -181,7 +187,7 @@ class IconDownloader: NSObject {
 		if repObject is URL || repObject is String {
 			let icon = Icon(repObject: repObject)
 			icons.append(icon)
-			if inMemory > 0 && icons.count > inMemory {
+			if configuration.inMemory > 0 && icons.count > configuration.inMemory {
 				icons.remove(at: 0)
 			}
 			return icon
@@ -191,12 +197,12 @@ class IconDownloader: NSObject {
 	
 	fileprivate func icon(withRepObject repObject: AnyHashable, startUpdate: Bool) -> Icon? {
 
-		var icon = icons.first(where:  { $0.repObject == repObject })
-		if icon == nil {
-			icon = addIcon(with: repObject)
+		var f_icon = icons.first(where:  { $0.repObject == repObject })
+		if f_icon == nil {
+			f_icon = addIcon(with: repObject)
 		}
 		
-		guard let icon = icon
+		guard let icon = f_icon
 		else {
 			return nil
 		}
@@ -224,13 +230,13 @@ class IconDownloader: NSObject {
 					else {
 						icon.content = processReceivedIcon(icon: img!)
 
-						if validity > 0.0 {
+						if configuration.validity > 0.0 {
 							let modDate = FileManager.th_modDate1970(atPath: path)
 							if modDate == nil {
 								THLogError("modDate == nil path:\(path)")
 							}
 							else {
-								if modDate!.timeIntervalSinceNow < -validity {
+								if modDate!.timeIntervalSinceNow < -configuration.validity {
 									needsUpdate = true
 								}
 							}
@@ -251,12 +257,12 @@ class IconDownloader: NSObject {
 
 	fileprivate func loadIcon(forRepObject repObject: AnyHashable) {
 		
-		var icon = icons.first(where:  { $0.repObject == repObject })
-		if icon == nil {
-			icon = addIcon(with: repObject)
+		var f_icon = icons.first(where:  { $0.repObject == repObject })
+		if f_icon == nil {
+			f_icon = addIcon(with: repObject)
 		}
 		
-		guard let icon = icon
+		guard let icon = f_icon
 		else {
 			return
 		}
@@ -358,7 +364,7 @@ class IconDownloader: NSObject {
 			let p_img = self.processReceivedIcon(icon: d_img)
 
 			if self.cacheDir != nil {
-				let data = self.storeProcessed == true ? self.data(fromImage: p_img)! : data!
+				let data = self.configuration.storeProcessed == true ? self.data(fromImage: p_img)! : data!
 
 				if self.saveToDisk(data: data, ofIcon: icon) == false {
 					THLogError("saveToDisk == false icon:\(icon)")
@@ -427,7 +433,7 @@ class THIconDownloader: IconDownloader {
 	}
 
 	func icon(atURL url: URL?, startUpdate: Bool) -> TH_NSUI_Image? {
-		if let excludedHosts = excludedHosts, let host = url?.host {
+		if let excludedHosts = configuration.excludedHosts, let host = url?.host {
 			if excludedHosts.contains(host) == true {
 				return nil
 			}
@@ -443,7 +449,7 @@ class THIconDownloader: IconDownloader {
 			return false
 		}
 	
-		if let excludedHosts = excludedHosts, let host = url.host {
+		if let excludedHosts = configuration.excludedHosts, let host = url.host {
 			if excludedHosts.contains(host) == true {
 				return false
 			}
@@ -462,7 +468,7 @@ class THIconDownloader: IconDownloader {
 			return
 		}
 	
-		if let excludedHosts = excludedHosts, let host = url.host {
+		if let excludedHosts = configuration.excludedHosts, let host = url.host {
 			if excludedHosts.contains(host) == true {
 				return
 			}
@@ -527,8 +533,11 @@ class THIconDownloader: IconDownloader {
 			THLogError("incorrect host name host:\(host)")
 			return allowsGeneric == true ? genericIcon16 : nil
 		}
-		if excludedHosts != nil && excludedHosts!.contains(host) == true {
-			return allowsGeneric == true ? genericIcon16 : nil
+
+		if let excludedHosts = configuration.excludedHosts {
+			if excludedHosts.contains(host) == true {
+				return allowsGeneric == true ? genericIcon16 : nil
+			}
 		}
 		
 		let icon = super.icon(withRepObject: host as AnyHashable, startUpdate: startUpdate)

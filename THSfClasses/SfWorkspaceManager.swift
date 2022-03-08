@@ -11,7 +11,7 @@ import Foundation
 	@objc var selectedWorkspace: SfWorkspace? { get { workspaces.first(where: { $0.isSelected == true }) }}
 	@objc var defaultWorkspace: SfWorkspace { get { return workspaces.first! }}
 
-	private let dirPath = FileManager.th_appSupportPath("workspaces")
+	private let dirPath = FileManager.th_documentsPath("workspaces")
 	private var timer: Timer?
 
 	class func safariRef() -> Int? {

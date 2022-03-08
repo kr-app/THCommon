@@ -31,7 +31,7 @@ class RssChannel: THDistantItem, THDictionarySerializationProtocol {
 
 	class func channel(fromFile path: String) -> Self? {
 		let channel = Self.th_unarchive(fromDictionaryRepresentationAtPath: path)
-		channel?.identifier = path.th_lastPathComponent().th_deletingPathExtension()
+		channel?.identifier = path.th_lastPathComponent.th_deletingPathExtension()
 		return channel
 	}
 

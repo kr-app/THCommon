@@ -9,26 +9,14 @@
 //-----------------------------------------------------------------------------------------------------------------------------------------
 extension String {
 	
-	func th_appendingPathComponent(_ pathCompoment: String) -> String {
-		return (self as NSString).appendingPathComponent(pathCompoment)
-	}
+	var th_lastPathComponent: String { (self as NSString).lastPathComponent }
+	var th_pathExtension: String { (self as NSString).pathExtension }
 
-	func th_lastPathComponent() -> String {
-		return (self as NSString).lastPathComponent
-	}
-
-	func th_deletingLastPathComponent() -> String {
-		return (self as NSString).deletingLastPathComponent
-	}
-
-	func th_appendingPathExtension(_ pathExtension: String) -> String {
-		return (self as NSString).appendingPathExtension(pathExtension)!
-	}
-
-	func th_deletingPathExtension() -> String {
-		return (self as NSString).deletingPathExtension
-	}
-
+	func th_appendingPathComponent(_ pathCompoment: String) -> String { (self as NSString).appendingPathComponent(pathCompoment) }
+	func th_deletingLastPathComponent() -> String { (self as NSString).deletingLastPathComponent }
+	func th_appendingPathExtension(_ pathExtension: String) -> String { (self as NSString).appendingPathExtension(pathExtension)! }
+	func th_deletingPathExtension() -> String { (self as NSString).deletingPathExtension }
+	func th_expandingTildeInPath() -> String { (self as NSString).expandingTildeInPath }
 }
 //-----------------------------------------------------------------------------------------------------------------------------------------
 
