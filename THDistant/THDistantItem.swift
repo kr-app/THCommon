@@ -1,9 +1,9 @@
-// THDistantItem.swift
+// THDistantObject.swift
 
 import Cocoa
 
 //--------------------------------------------------------------------------------------------------------------------------------------------
-class THDistantItem: NSObject {
+class THDistantObject: NSObject {
 
 	var lastUpdate: Date?
 	var isUpdating: Bool { task != nil }
@@ -20,7 +20,7 @@ class THDistantItem: NSObject {
 		self.lastError = error
 	}
 
-	func update(withDelegate delegate: Any? = nil, urlSession: URLSession, completion: @escaping (Bool, String?) -> Void) {
+	func update(urlSession: URLSession, completion: @escaping (Bool, String?) -> Void) {
 		if task != nil {
 			return
 		}
@@ -64,7 +64,7 @@ class THDistantItem: NSObject {
 				return
 			}
 
-			if let error = (delegate != nil ? self.parse(data: data, withDelegate: delegate!) : self.parse(data: data)) {
+			if let error = self.parse(data: data) {
 				DispatchQueue.main.async {
 					THLogError("parse failed error:\(error)")
 

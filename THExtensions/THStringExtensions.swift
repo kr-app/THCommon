@@ -135,7 +135,7 @@ extension NSString {
 		if string == anotherString {
 			return true
 		}
-		return (string != nil && anotherString != nil && string == anotherString) ? true : false
+		return (string != nil && anotherString != nil && string == anotherString)
 	}
 	
 	@objc func th_terminating(by suffix: String) -> String {

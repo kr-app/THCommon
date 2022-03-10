@@ -46,7 +46,7 @@ class THOpenInBrowser {
 
 		NSWorkspace.shared.open([url], withApplicationAt: browser!, configuration: config, completionHandler: {(app: NSRunningApplication?, error: Error?) in
 			DispatchQueue.main.async {
-				completion((app != nil || error == nil) ? true : false)
+				completion(app != nil || error == nil)
 			}
 		})
 	}

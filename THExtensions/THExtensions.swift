@@ -148,7 +148,7 @@ extension NSPoint {
 
 		let dX = self.x - anotherPoint.x
 		let dY = self.y - anotherPoint.y
-		return ((dX <= tolerance && dX >= tolerance * -1.0) && (dY <= tolerance && dY >= tolerance * -1.0)) ? true : false
+		return ((dX <= tolerance && dX >= tolerance * -1.0) && (dY <= tolerance && dY >= tolerance * -1.0))
 	}
 }
 

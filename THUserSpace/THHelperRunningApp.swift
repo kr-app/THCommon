@@ -122,7 +122,7 @@ import Cocoa
 			self.waitingAppOpenedEnd = false
 
 //			DispatchQueue.main.async {
-//				completion((app != nil && error == nil) ? true : false)
+//				completion(app != nil && error == nil)
 //			}
 		})
 
