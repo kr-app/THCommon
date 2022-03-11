@@ -145,7 +145,7 @@ extension NSScrollView {
 extension NSTableView {
 
 	@objc func th_reloadData(forRowIndexes indexSet: IndexSet, columnIndexes: IndexSet? = nil) {
-		let tcIdx = columnIndexes ?? NSIndexSet(indexesIn: NSRange(0, self.tableColumns.count)) as IndexSet
+		let tcIdx = columnIndexes ?? NSIndexSet(indexesIn: NSRange(location: 0, length: self.tableColumns.count)) as IndexSet
 		self.reloadData(forRowIndexes: indexSet, columnIndexes: tcIdx)
 	}
 

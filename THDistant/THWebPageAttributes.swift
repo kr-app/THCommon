@@ -3,10 +3,10 @@
 import Cocoa
 
 //--------------------------------------------------------------------------------------------------------------------------------------------
-class RssArticleImage: NSObject {
+class RssArticleImage {
 	private static let urlSession = URLSession(configuration: URLSessionConfiguration.th_ephemeral())
 	
-	private static var once = [URL]()
+	private static var onlyOne = [URL]()
 	
 	var link: URL!
 	var extractedImage: URL?
@@ -18,10 +18,10 @@ class RssArticleImage: NSObject {
 	}
 
 	func start(_ completion: @escaping (Bool, String?) -> Void) {
-		if Self.once.contains(link) == true {
+		if Self.onlyOne.contains(link) == true {
 			return
 		}
-		Self.once.append(link)
+		Self.onlyOne.append(link)
 	
 		THLogInfo("link:\(link.absoluteString)")
 

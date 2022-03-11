@@ -14,8 +14,11 @@ extension String {
 
 	func th_appendingPathComponent(_ pathCompoment: String) -> String { (self as NSString).appendingPathComponent(pathCompoment) }
 	func th_deletingLastPathComponent() -> String { (self as NSString).deletingLastPathComponent }
+
 	func th_appendingPathExtension(_ pathExtension: String) -> String { (self as NSString).appendingPathExtension(pathExtension)! }
 	func th_deletingPathExtension() -> String { (self as NSString).deletingPathExtension }
+
+	func th_abbreviatingWithTildeInPath() -> String { (self as NSString).abbreviatingWithTildeInPath }
 	func th_expandingTildeInPath() -> String { (self as NSString).expandingTildeInPath }
 }
 //-----------------------------------------------------------------------------------------------------------------------------------------
@@ -38,22 +41,22 @@ extension String {
 		return self
 	}
 
-	func th_truncate(maxChars: Int, by byTruncate: NSLineBreakMode) -> String {
-		if self.count < maxChars {
+	func th_truncate(max: Int, by byTruncate: NSLineBreakMode = .byTruncatingTail) -> String {
+		if self.count < max {
 			return self
 		}
 
 		if byTruncate == .byTruncatingMiddle {
-			let offset: Int = maxChars / 2
+			let offset: Int = max / 2
 			return String(self.prefix(offset)).th_trimedFirstSpace() + "…" + String(self.suffix(offset)).th_trimedFirstSpace()
 		}
 	
-		return String(self.prefix(maxChars)).th_trimedLastSpace() + "…"
+		return String(self.prefix(max)).th_trimedLastSpace() + "…"
 	}
 
-	func th_truncate(	maxLength: CGFloat,
+	func th_truncate(	max: CGFloat,
 								withAttrs attrs: [NSAttributedString.Key: Any],
-								by byTruncate: NSLineBreakMode = .byTruncatingMiddle,
+								by byTruncate: NSLineBreakMode = .byTruncatingTail,
 								substitutor: String = "…") -> String {
 
 		if self.count < 40 {
@@ -61,7 +64,7 @@ extension String {
 		}
 		
 		let sz = self.size(withAttributes: attrs)
-		if sz.width <= maxLength {
+		if sz.width <= max {
 			return self
 		}
 		
@@ -70,18 +73,18 @@ extension String {
 			while offset > 0 {
 				for i in 0...1 {
 					let s = String(self.prefix(offset)).th_trimedLastSpace() + "…" + String(self.suffix(offset - i)).th_trimedFirstSpace()
-					if s.size(withAttributes: attrs).width <= maxLength {
+					if s.size(withAttributes: attrs).width <= max {
 						return s
 					}
 				}
 				offset -= 1
 			}
 		}
-		else {
+		else if byTruncate == .byTruncatingTail {
 			var offset = 0
 			while true {
 				let s = String(self.prefix(offset + 1)).th_trimedLastSpace() + substitutor
-				if s.size(withAttributes: attrs).width <= maxLength {
+				if s.size(withAttributes: attrs).width <= max {
 					offset += 1
 					continue
 				}
@@ -187,12 +190,12 @@ extension String {
 		}
 		let fre = fr.location + fr.length
 
-		let er = (self as NSString).range(of: end, range: NSRange(fre, self.count - fre))
+		let er = (self as NSString).range(of: end, range: NSRange(location: fre, length: self.count - fre))
 		if er.location == NSNotFound {
 			return nil
 		}
 
-		let r = (self as NSString).substring(with: NSRange(fre, er.location - fre))
+		let r = (self as NSString).substring(with: NSRange(location: fre, length: er.location - fre))
 		return r.isEmpty == false ? r : nil
 	}
 

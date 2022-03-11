@@ -151,12 +151,6 @@ extension NSPoint {
 		return ((dX <= tolerance && dX >= tolerance * -1.0) && (dY <= tolerance && dY >= tolerance * -1.0))
 	}
 }
-
-extension NSRange {
-	init(_ location: Int, _ length: Int) {
-		self.init(location: location, length: length)
-	}
-}
 #endif
 //-----------------------------------------------------------------------------------------------------------------------------------------
 
