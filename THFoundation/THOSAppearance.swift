@@ -3,13 +3,18 @@
 import Cocoa
 
 //--------------------------------------------------------------------------------------------------------------------------------------------
-@available(*, deprecated)
-class THOSAppearance: NSObject {
+struct THOSAppearance {
 	static let shared = THOSAppearance()
+}
+//--------------------------------------------------------------------------------------------------------------------------------------------
+
+
+//--------------------------------------------------------------------------------------------------------------------------------------------
+extension THOSAppearance {
 
 	private static var p_universalAccess: (status: Int?, path: String?, dateMod: TimeInterval?) = (nil, nil, nil)
 
-	class func hasReduceTransparency() -> Bool {
+	static func hasReduceTransparency() -> Bool {
 
 		THFatalError(THRunningApp.isSandboxedApp(), "isSandboxedApp")
 
@@ -43,23 +48,25 @@ class THOSAppearance: NSObject {
 
 		p_universalAccess.dateMod = dateTi
 
+		var nStatus: Int?
+
 		let plist = NSDictionary(contentsOfFile: path)
 		if plist == nil {
 			THLogError("can not init dictionary at path:\(path)")
 		}
-		
-		var nStatus: Int?
-		if let reduceTransparency = plist?["reduceTransparency"] {
-			if let rt = reduceTransparency as? NSNumber {
-				nStatus = rt.boolValue == true ? 1 : -1
+		else {
+			if let reduceTransparency = plist?["reduceTransparency"] {
+				if let rt = reduceTransparency as? NSNumber {
+					nStatus = rt.boolValue == true ? 1 : -1
+				}
+				else if let rt = reduceTransparency as? String, let rtv = Int(rt) {
+					nStatus = rtv > 0 ? 1 : -1
+				}
 			}
-			else if let rt = reduceTransparency as? String, let rtv = Int(rt) {
-				nStatus = rtv > 0 ? 1 : -1
-			}
-		}
 
-		if nStatus == nil {
-			THLogError("not status from plist:\(plist)")
+			if nStatus == nil {
+				THLogError("not status from plist:\(plist)")
+			}
 		}
 
 		p_universalAccess.status = nStatus ?? -1
@@ -69,4 +76,3 @@ class THOSAppearance: NSObject {
 	
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------
-

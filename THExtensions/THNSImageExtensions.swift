@@ -187,7 +187,7 @@ extension NSImage {
 		return img
 	}
 
-	@objc class func th_wsIcon(forFileHFSType hfsType: OSType, size: CGFloat) -> NSImage? {
+/*	@objc class func th_wsIcon(forFileHFSType hfsType: OSType, size: CGFloat) -> NSImage? {
 
 		guard let type = NSFileTypeForHFSTypeCode(hfsType)
 		else {
@@ -216,7 +216,7 @@ extension NSImage {
 
 	@objc class func th_genericFolderIcon(withSize size: CGFloat) -> NSImage? {
 		return th_wsIcon(forFileHFSType: OSType(kGenericFolderIcon), size: size)
-	}
+	}*/
 	
 }
 //-----------------------------------------------------------------------------------------------------------------------------------------
