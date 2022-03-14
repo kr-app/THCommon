@@ -3,22 +3,22 @@
 import Cocoa
 
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-@objc class THAsScript: NSObject {
+class THAsScript: NSObject {
 
 	static var runningScript: [String: Any]?
 	static var cachesDir: String!
 	
-	@objc var name: String!
-	@objc var source: String!
+	var name: String!
+	var source: String!
 
-	@objc var resultAed: NSAppleEventDescriptor?
-	@objc var resultErrorInfo: NSDictionary?
+	var resultAed: NSAppleEventDescriptor?
+	var resultErrorInfo: NSDictionary?
 
-	@objc class func hasRunningScript() -> Bool {
-		return Self.runningScript != nil ? true : false
+	class func hasRunningScript() -> Bool {
+		Self.runningScript != nil ? true : false
 	}
 
-	@objc init(name: String, source: String) {
+	init(name: String, source: String, rawMultilines: Bool = false) {
 		self.name = name
 		self.source = source
 	}
@@ -27,7 +27,7 @@ import Cocoa
 		th_description("name: \(self.name)")
 	}
 
-	@objc func execute(forRunner runner: Any) -> NSAppleEventDescriptor? {
+	func execute(forRunner runner: Any) -> NSAppleEventDescriptor? {
 
 		THFatalError(Thread.isMainThread == false, "should be executed on main thread")
 
@@ -202,20 +202,20 @@ import Cocoa
 
 
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-@objc class THAsScriptManager: NSObject {
-	@objc static let shared = THAsScriptManager()
+class THAsScriptManager {
+	static let shared = THAsScriptManager()
 
 	private var scripts = [THAsScript]()
 
-	@objc func removeAllScripts() {
+	func removeAllScripts() {
 		scripts.removeAll()
 	}
 
-	@objc func script(named name: String) -> THAsScript? {
+	func script(named name: String) -> THAsScript? {
 		return scripts.first(where: {$0.name == name })
 	}
 
-	@objc func addScript(withSource source: String, forName name: String) -> THAsScript {
+	func addScript(withSource source: String, forName name: String) -> THAsScript {
 		let script = THAsScript(name: name, source:source)
 		scripts.append(script)
 		return script

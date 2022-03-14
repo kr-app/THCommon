@@ -207,7 +207,7 @@ struct RssFromSource {
 			result.append(RssFromSource(site: site, rss: url, title: title))
 		})
 
-		return result
+		return result.count > 0 ? result : nil
 	}
 
 }

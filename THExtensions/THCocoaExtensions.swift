@@ -26,26 +26,6 @@ extension NSParagraphStyle {
 
 
 //--------------------------------------------------------------------------------------------------------------------------------------------
-extension NSDateComponents {
-
-	@objc convenience init(withYear year: Int, month: Int, day: Int) {
-		self.init()
-
-		self.year = year
-		self.month = month
-		self.day = day
-	}
-
-	@objc convenience init(withHour hour: Int, min: Int, sec: Int) {
-		self.init()
-
-		self.hour = hour
-		self.minute = min
-		self.second = sec
-	}
-
-}
-
 extension DateComponents {
 
 	init(withYear year: Int, month: Int, day: Int) {
@@ -64,6 +44,18 @@ extension DateComponents {
 
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------
+
+
+//-----------------------------------------------------------------------------------------------------------------------------------------
+extension Calendar {
+
+	func th_midnight(of date: Date) -> Date {
+		self.date(from: self.dateComponents([.year, .month, .day], from: date))!
+	}
+
+}
+//-----------------------------------------------------------------------------------------------------------------------------------------
+
 
 
 //--------------------------------------------------------------------------------------------------------------------------------------------

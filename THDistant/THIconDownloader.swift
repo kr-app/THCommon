@@ -483,12 +483,12 @@ class THIconDownloader: IconDownloader {
 
 //--------------------------------------------------------------------------------------------------------------------------------------------
 #if os(macOS)
-@objc class THWebIconLoader: IconDownloader {
-	@objc static let shared = THWebIconLoader(		identifier: "shared",
+class THWebIconLoader: IconDownloader {
+	static let shared = THWebIconLoader(		identifier: "shared",
 																				cacheDir: FileManager.th_appCachesDir("THWebIconLoader-shared"))
-	@objc static let didLoadNotification = Notification.Name("THWebIconLoader-didLoadNotification")
+	static let didLoadNotification = Notification.Name("THWebIconLoader-didLoadNotification")
 
-	@objc let genericIcon16 = TH_NSUI_Image(named: "BookmarkURL")!.th_copyAndResize(NSSize(16.0, 16.0))
+	let genericIcon16 = TH_NSUI_Image(named: "BookmarkURL")!.th_copyAndResize(NSSize(16.0, 16.0))
 
 	override init(identifier: String, cacheDir: String?) {
 
@@ -523,7 +523,7 @@ class THIconDownloader: IconDownloader {
 
 	}
 
-	@objc func icon(forHost host: String?, startUpdate: Bool, allowsGeneric: Bool) -> TH_NSUI_Image? {
+	func icon(forHost host: String?, startUpdate: Bool, allowsGeneric: Bool) -> TH_NSUI_Image? {
 		guard let host = host
 		else {
 			return allowsGeneric == true ? genericIcon16 : nil

@@ -31,7 +31,7 @@ extension NSMenu {
 //--------------------------------------------------------------------------------------------------------------------------------------------
 extension NSMenuItem {
 
-	@objc convenience init(title: String, target: AnyObject? = nil, action: Selector? = nil, representedObject: Any? = nil, tag: Int = 0, enabled: Bool = true) {
+	@objc convenience init(title: String, target: AnyObject? = nil, action: Selector? = nil, representedObject: Any? = nil, tag: Int = 0, enabled: Bool = true, submenu: NSMenu? = nil) {
 		self.init(title: title, action: action, keyEquivalent: "")
 
 		if let target = target {
@@ -46,6 +46,10 @@ extension NSMenuItem {
 		
 		if tag != 0 {
 			self.tag = tag
+		}
+
+		if let submenu = submenu {
+			self.submenu = submenu
 		}
 	}
 

@@ -21,14 +21,14 @@ import Cocoa
 
 
 //--------------------------------------------------------------------------------------------------------------------------------------------
-@objc class THOverView : NSView {
+class THOverView : NSView {
 
-	@objc var repInfo: Any?
-	@objc var repImage: NSImage?
-	@objc var repString: String?
+	var repInfo: Any?
+	var repImage: NSImage?
+	var repString: String?
 
-	@objc var respondsWhenIsNotKeyWindow = false
-	@objc @IBOutlet weak var delegator: THOverViewDelegateProtocol?
+	var respondsWhenIsNotKeyWindow = false
+	@IBOutlet weak var delegator: THOverViewDelegateProtocol?
 
 	override var isHidden: Bool { didSet { updateAfterHidden(self.isHidden) }}
 	
@@ -86,7 +86,7 @@ import Cocoa
 		addTrackingArea(trackingArea!)
 	}
 
-	@objc func cleanAllStates() {
+	func cleanAllStates() {
 		isEntered = false
 		isPressed = false
 		isDisabled = false
@@ -103,7 +103,7 @@ import Cocoa
 		}
 	}
 
-	@objc func setIsDisabled(_ disabled: Bool) {
+	func setIsDisabled(_ disabled: Bool) {
 		if disabled == isDisabled {
 			return
 		}
@@ -248,7 +248,7 @@ import Cocoa
 //--------------------------------------------------------------------------------------------------------------------------------------------
 extension THOverView {
 
-	@objc func popMenu(_ menu: NSMenu, isPull: Bool) {
+	func popMenu(_ menu: NSMenu, isPull: Bool) {
 
 		let ml = self.window!.mouseLocationOutsideOfEventStream
 
@@ -275,7 +275,7 @@ extension THOverView {
 //--------------------------------------------------------------------------------------------------------------------------------------------
 extension THOverView {
 
-	@objc func drawRepImage(opacity: CGFloat, rect: NSRect) {
+	func drawRepImage(opacity: CGFloat, centerdInRect rect: NSRect) {
 		guard let img = self.repImage
 		else {
 			return
@@ -287,7 +287,7 @@ extension THOverView {
 							fraction: opacity)
 	}
 
-	@objc func drawRepString(withAttrs attrs: [NSAttributedString.Key: Any], rect: NSRect, offSet: NSPoint = .zero) {
+	func drawRepString(withAttrs attrs: [NSAttributedString.Key: Any], rect: NSRect, offSet: NSPoint = .zero) {
 		guard let string = self.repString
 		else {
 			return
