@@ -21,11 +21,11 @@ import Cocoa
 
 
 //--------------------------------------------------------------------------------------------------------------------------------------------
-class THOverView : NSView {
+@objc class THOverView : NSView {
 
-	var repInfo: Any?
-	var repImage: NSImage?
-	var repString: String?
+	@objc var repInfo: Any?
+	@objc var repImage: NSImage?
+	@objc var repString: String?
 
 	var respondsWhenIsNotKeyWindow = false
 	@IBOutlet weak var delegator: THOverViewDelegateProtocol?
@@ -86,7 +86,7 @@ class THOverView : NSView {
 		addTrackingArea(trackingArea!)
 	}
 
-	func cleanAllStates() {
+	@objc func cleanAllStates() {
 		isEntered = false
 		isPressed = false
 		isDisabled = false
@@ -103,7 +103,7 @@ class THOverView : NSView {
 		}
 	}
 
-	func setIsDisabled(_ disabled: Bool) {
+	@objc func setIsDisabled(_ disabled: Bool) {
 		if disabled == isDisabled {
 			return
 		}
@@ -248,7 +248,7 @@ class THOverView : NSView {
 //--------------------------------------------------------------------------------------------------------------------------------------------
 extension THOverView {
 
-	func popMenu(_ menu: NSMenu, isPull: Bool) {
+	@objc func popMenu(_ menu: NSMenu, isPull: Bool) {
 
 		let ml = self.window!.mouseLocationOutsideOfEventStream
 
