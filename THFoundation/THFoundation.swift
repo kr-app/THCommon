@@ -85,11 +85,11 @@ func TH_isDebuggerAttached() -> Bool {
 //-----------------------------------------------------------------------------------------------------------------------------------------
 #if os(macOS)
 func TH_RGBACOLOR(_ red: CGFloat, _ green: CGFloat, _ blue: CGFloat, _ alpha: CGFloat) -> NSColor {
-	return NSColor(deviceRed: red / 255.0, green: green / 255.0, blue: blue / 255.0, alpha: alpha > 1.0 ? 1.0 : alpha)
+	NSColor(deviceRed: red / 255.0, green: green / 255.0, blue: blue / 255.0, alpha: alpha > 1.0 ? 1.0 : alpha)
 }
 
 func TH_RGBCOLOR(_ red: CGFloat, _ green: CGFloat, _ blue: CGFloat) -> NSColor {
-	return TH_RGBACOLOR(red, green, blue, 1.0)
+	TH_RGBACOLOR(red, green, blue, 1.0)
 }
 
 #elseif os(iOS)

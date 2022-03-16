@@ -99,7 +99,7 @@ class THDictionaryRepresentation {
 		let plist = values as NSDictionary
 
 		if plist.write(toFile: path, atomically: true) == false {
-			let writable = FileManager.default.isWritableFile(atPath: path.th_deletingLastPathComponent())
+			let writable = FileManager.default.isWritableFile(atPath: path.th_deletingLastPathComponent)
 			THLogError("writeToFile == false writable:\(writable) path:\(path)")
 			return false
 		}

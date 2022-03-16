@@ -4,21 +4,26 @@ import Cocoa
 
 //--------------------------------------------------------------------------------------------------------------------------------------------
 struct THWebBrowserScriptingTools {
+	private static let safariBundleId = "com.apple.Safari"
+
+	private static func hasRunningSafari() -> Bool {
+		NSRunningApplication.runningApplications(withBundleIdentifier: safariBundleId).count > 0
+	}
 
 	static func createWindowIfNecessary() -> Bool {
-		return FirefoxScriptingTools.createWindowIfNecessary()
+		FirefoxScriptingTools.createWindowIfNecessary()
 	}
 
 	static func sourceOfFrontTab(targetUrl: String) -> String? {
-		return SafariScriptingTools.sourceOfFrontSite(targetUrl: targetUrl)
+		hasRunningSafari() ? SafariScriptingTools.sourceOfFrontSite(targetUrl: targetUrl) : nil
 	}
 
 	static func rssFeedsOfFrontTab() -> [RssFromSource]? {
-		return SafariScriptingTools.frontRssFeeds()
+		hasRunningSafari() ? SafariScriptingTools.frontRssFeeds() : nil
 	}
 
 	static func getFrontTab() -> (empty: Bool, title: String?, url: String?)? {
-		return SafariScriptingTools.getFrontTab()
+		hasRunningSafari() ? SafariScriptingTools.getFrontTab() : nil
 	}
 
 }

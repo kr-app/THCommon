@@ -115,7 +115,7 @@ fileprivate class THRuleEditorRow_PopUpButton : NSPopUpButton {
 	@objc func datePicker(withFrame frame: NSRect,  ruleItem: THRuleItem, controlView: NSView) -> NSDatePicker {
 		var frame = frame
 
-		let date = ruleItem.dateValue ?? Date.th_dateAtMidnight()
+		let date = ruleItem.dateValue ?? Calendar.current.th_midnight(of: Date())
 
 		frame.origin.y += CGFloatFloor((frame.size.height - 22.0) / 2.0) + 1.0
 		frame.size.width = 88.0

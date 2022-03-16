@@ -4,13 +4,14 @@
 	import Cocoa
 #elseif os(iOS)
 	import UIKit
+import SystemConfiguration
 #endif
 
-
 //--------------------------------------------------------------------------------------------------------------------------------------------
-class THIconDownloaderConfiguration {
-	var validity: TimeInterval = 7.0.th_day
-	var storeProcessed = false
+struct THIconDownloaderConfiguration {
+	var retention: TimeInterval = 0.0 // days — remove file on maintenance
+	var validity: TimeInterval = 0.0 // days — refresh on reload from disk
+	var storeRawData = true
 	var maxSize: CGFloat = 0.0
 	var cropIcon = false
 	var roundedIcon = false
@@ -63,15 +64,17 @@ class IconDownloader: NSObject {
 		self.identifier = identifier
 		self.cacheDir = cacheDir
 
+#if DEBUG
 		let cookies = urlSession.configuration.httpCookieStorage
-		THLogInfo("cookies:\(cookies?.cookies)")
+		THLogDebug("cookies:\(cookies?.cookies)")
+#endif
 	}
 	
 	override var description: String {
 		th_description("identifier:\(identifier)")
 	}
 
-	func setDiskRetention(_ retention: TimeInterval) {
+/*	private func setDiskRetention(_ retention: TimeInterval) {
 
 		THFatalError(retention < 0.0, "retention:\(retention)")
 
@@ -117,7 +120,7 @@ class IconDownloader: NSObject {
 				THLogError("th_removeItem == false path:\(path)")
 			}
 		}
-	}
+	}*/
 
 	// MARK: -
 	
@@ -129,7 +132,7 @@ class IconDownloader: NSObject {
 		fatalError("subclass implementation")
 	}
 
-	fileprivate func processReceivedIcon(icon: TH_NSUI_Image) -> TH_NSUI_Image {
+	private func processReceivedIcon(icon: TH_NSUI_Image) -> TH_NSUI_Image {
 		var img = icon
 
 #if os(macOS)
@@ -237,7 +240,7 @@ class IconDownloader: NSObject {
 							}
 							else {
 								if modDate!.timeIntervalSinceNow < -configuration.validity {
-									needsUpdate = true
+									//needsUpdate = true
 								}
 							}
 						}
@@ -322,8 +325,8 @@ class IconDownloader: NSObject {
 				return
 			}
 
-			let rep = response as? HTTPURLResponse
-			if data == nil || rep == nil {
+			guard let data = data, let rep = response as? HTTPURLResponse
+			else {
 				DispatchQueue.main.async {
 					THLogError("data == nil || rep == nil icon:\(icon) error:\(error)")
 
@@ -332,23 +335,24 @@ class IconDownloader: NSObject {
 				}
 				return
 			}
-			else if rep!.statusCode != 200 {
+
+			if rep.statusCode != 200 {
 				DispatchQueue.main.async {
-					THLogError("response:\(rep!.th_displayStatus()) icon:\(icon)")
+					THLogError("response:\(rep.th_displayStatus()) icon:\(icon)")
 
 					icon.task = nil
-					icon.error = rep!.th_displayStatus()
+					icon.error = rep.th_displayStatus()
 				}
 				return
 			}
 
-			if data!.count > 1.th_Mio {
-				THLogError("expensive data length: (\(ByteCountFormatter.th_bin1024.string(fromByteCount: Int64(data!.count))) for icon:\(icon)")
+			if data.count > 1.th_Mio {
+				THLogWarning("expensive data icon: (\(ByteCountFormatter.th_bin1024.string(fromByteCount: Int64(data.count))) for icon:\(icon)")
 			}
 
-			guard let d_img = TH_NSUI_Image(data: data!)
+			guard let d_img = TH_NSUI_Image(data: data)
 			else {
-				if self.saveToDisk(data: data!, ofIcon: icon, receivedData: true) == false {
+				if self.saveToDisk(data: data, ofIcon: icon, receivedData: true) == false {
 					THLogError("saveToDisk(data:ofIco:receivedData:) == false icon:\(icon)")
 				}
 
@@ -364,10 +368,10 @@ class IconDownloader: NSObject {
 			let p_img = self.processReceivedIcon(icon: d_img)
 
 			if self.cacheDir != nil {
-				let data = self.configuration.storeProcessed == true ? self.data(fromImage: p_img)! : data!
-
-				if self.saveToDisk(data: data, ofIcon: icon) == false {
-					THLogError("saveToDisk == false icon:\(icon)")
+				if let data = self.configuration.storeRawData == false ? self.data(fromImage: p_img) : data {
+					if self.saveToDisk(data: data, ofIcon: icon) == false {
+						THLogError("saveToDisk == false icon:\(icon)")
+					}
 				}
 			}
 	
@@ -388,15 +392,9 @@ class IconDownloader: NSObject {
 
 
 //--------------------------------------------------------------------------------------------------------------------------------------------
-protocol THIconDownloaderDelegateProtocol: AnyObject {
-	func iconDownloadder(_ sender: THIconDownloader, processReceivedIcon icon: TH_NSUI_Image) -> TH_NSUI_Image
-}
-
 class THIconDownloader: IconDownloader {
 	static let shared = THIconDownloader(identifier: "shared", cacheDir: FileManager.th_appCachesDir("THIconDownloader-shared"))
 	static let didLoadNotification = Notification.Name("THIconDownloaderDidLoadNotification")
-
-	var delegate: THIconDownloaderDelegateProtocol?
 
 	override func proposedFilename(forRepObject repObject: AnyHashable) -> String? {
 		var fn = (repObject as! URL).path
@@ -418,18 +416,10 @@ class THIconDownloader: IconDownloader {
 		startConnection(withRequest: req, ofIcon: icon)
 	}
 
-	fileprivate override func processReceivedIcon(icon: TH_NSUI_Image) -> TH_NSUI_Image {
-		if let delegate = self.delegate {
-			return delegate.iconDownloadder(self, processReceivedIcon: icon)
-		}
-		return super.processReceivedIcon(icon: icon)
-	}
-
 	fileprivate override func didFinishUpdate(ofIcon icon: Icon) {
 		NotificationCenter.default.post(	name: Self.didLoadNotification,
 															object: self,
 															userInfo: ["url": icon.repObject as! URL, "icon": icon.content!])
-
 	}
 
 	func icon(atURL url: URL?, startUpdate: Bool) -> TH_NSUI_Image? {
@@ -483,25 +473,11 @@ class THIconDownloader: IconDownloader {
 
 //--------------------------------------------------------------------------------------------------------------------------------------------
 #if os(macOS)
-class THWebIconLoader: IconDownloader {
-	static let shared = THWebIconLoader(		identifier: "shared",
-																				cacheDir: FileManager.th_appCachesDir("THWebIconLoader-shared"))
-	static let didLoadNotification = Notification.Name("THWebIconLoader-didLoadNotification")
+class THFavIconLoader: IconDownloader {
+	static let shared = THFavIconLoader(identifier: "shared", cacheDir: FileManager.th_appCachesDir("THFavIconLoader-shared"))
+	static let didLoadNotification = Notification.Name("THFavIconLoader-didLoadNotification")
 
 	let genericIcon16 = TH_NSUI_Image(named: "BookmarkURL")!.th_copyAndResize(NSSize(16.0, 16.0))
-
-	override init(identifier: String, cacheDir: String?) {
-
-		if identifier == "shared" {
-			let old = cacheDir!.th_deletingLastPathComponent().th_appendingPathComponent("THWebIconLoader")
-
-			if FileManager.default.fileExists(atPath: old) == true {
-				try! FileManager.default.removeItem(atPath: old)
-			}
-		}
-
-		super.init(identifier: identifier, cacheDir: cacheDir)
-	}
 
 	override func proposedFilename(forRepObject repObject: AnyHashable) -> String? {
 		return (repObject as! NSString).appendingPathExtension("png")
@@ -520,7 +496,6 @@ class THWebIconLoader: IconDownloader {
 		NotificationCenter.default.post(	name: Self.didLoadNotification,
 															object: self,
 															userInfo: ["host": icon.repObject as! String, "icon": icon.content!])
-
 	}
 
 	func icon(forHost host: String?, startUpdate: Bool, allowsGeneric: Bool) -> TH_NSUI_Image? {

@@ -13,13 +13,13 @@ extension String {
 	var th_pathExtension: String { (self as NSString).pathExtension }
 
 	func th_appendingPathComponent(_ pathCompoment: String) -> String { (self as NSString).appendingPathComponent(pathCompoment) }
-	func th_deletingLastPathComponent() -> String { (self as NSString).deletingLastPathComponent }
+	var th_deletingLastPathComponent: String { (self as NSString).deletingLastPathComponent }
 
 	func th_appendingPathExtension(_ pathExtension: String) -> String { (self as NSString).appendingPathExtension(pathExtension)! }
-	func th_deletingPathExtension() -> String { (self as NSString).deletingPathExtension }
+	var th_deletingPathExtension: String { (self as NSString).deletingPathExtension }
 
-	func th_abbreviatingWithTildeInPath() -> String { (self as NSString).abbreviatingWithTildeInPath }
-	func th_expandingTildeInPath() -> String { (self as NSString).expandingTildeInPath }
+	var th_abbreviatingWithTildeInPath: String { (self as NSString).abbreviatingWithTildeInPath }
+	var th_expandingTildeInPath: String { (self as NSString).expandingTildeInPath }
 }
 //-----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -41,17 +41,17 @@ extension String {
 		return self
 	}
 
-	func th_truncate(max: Int, by byTruncate: NSLineBreakMode = .byTruncatingTail) -> String {
+	func th_truncate(max: Int, by byTruncate: NSLineBreakMode = .byTruncatingTail, terminator: String = "…") -> String {
 		if self.count < max {
 			return self
 		}
 
 		if byTruncate == .byTruncatingMiddle {
 			let offset: Int = max / 2
-			return String(self.prefix(offset)).th_trimedFirstSpace() + "…" + String(self.suffix(offset)).th_trimedFirstSpace()
+			return String(self.prefix(offset)).th_trimedFirstSpace() + terminator + String(self.suffix(offset)).th_trimedFirstSpace()
 		}
 	
-		return String(self.prefix(max)).th_trimedLastSpace() + "…"
+		return String(self.prefix(max)).th_trimedLastSpace() + terminator
 	}
 
 	func th_truncate(	max: CGFloat,
@@ -140,20 +140,6 @@ extension NSString {
 		}
 		return (string != nil && anotherString != nil && string == anotherString)
 	}
-	
-	@objc func th_terminating(by suffix: String) -> String {
-		if self.length == 0 || hasSuffix(suffix) == true {
-			return self as String
-		}
-	
-		for s in [".", "?", ":", "!", "?", "…"] {
-			if hasSuffix(s) == true {
-				return self as String
-			}
-		}
-
-		return appending(suffix)
-	}
 
 //	- (NSString*)th_stringTruncatedWithAttributes:(NSDictionary*)attributes maxWidth:(CGFloat)maxWidth
 //	{
@@ -174,12 +160,42 @@ extension NSString {
 //-----------------------------------------------------------------------------------------------------------------------------------------
 extension String {
 
+	func th_substring(to toIndex: Int) -> String {
+		(self as NSString).substring(to: toIndex)
+	}
+
+	func th_substring(from fromIndex: Int) -> String {
+		(self as NSString).substring(from: fromIndex)
+	}
+
 	func th_hasPrefixInsensitive(_ prefix: String) -> Bool {
 		(self as NSString).range(of: prefix, options: .caseInsensitive).location == 0
 	}
 
-	func th_containsInsensitive(_ string: String) -> Bool {
-		(self as NSString).range(of: string, options: .caseInsensitive).location != NSNotFound
+	func th_isLike(_ string: String) -> Bool {
+		(self as NSString).range(of: string, options: [.caseInsensitive, .diacriticInsensitive]).location != NSNotFound
+	}
+
+	func th_trimPrefix(_ prefix: String) -> String {
+		let r = (self as NSString).range(of: prefix)
+		if r.location != NSNotFound {
+			return self.th_substring(from: r.length).th_trimedFirstSpace()
+		}
+		return self
+	}
+
+	func th_terminating(by suffix: String) -> String {
+		if self.isEmpty || hasSuffix(suffix) {
+			return self
+		}
+
+		for s in [".", "?", ":", "!", "?", "…"] {
+			if hasSuffix(s) {
+				return self as String
+			}
+		}
+
+		return appending(suffix)
 	}
 
 	func th_search(firstRangeOf begin: String, endRange end: String) -> String? {

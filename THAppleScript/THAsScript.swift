@@ -178,8 +178,8 @@ class THAsScript: NSObject {
 	}
 
 	private func writeExecuteFinished(withRunningTime runningTime: TimeInterval, atPath path: String) -> Bool {
-		let file = path.th_lastPathComponent.th_deletingPathExtension()
-		let path = path.th_deletingLastPathComponent().th_appendingPathComponent(file + "-result.txt")
+		let file = path.th_lastPathComponent.th_deletingPathExtension
+		let path = path.th_deletingLastPathComponent.th_appendingPathComponent(file + "-result.txt")
 
 		let aed = self.resultAed
 		let errorInfo = self.resultErrorInfo

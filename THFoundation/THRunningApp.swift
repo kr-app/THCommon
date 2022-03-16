@@ -14,11 +14,11 @@
 	@objc static let appVersion = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as! String
 	@objc static let appBuild = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as! String
 
-	#if os(macOS)
-		@objc static let processId = NSRunningApplication.current.processIdentifier
-	#endif
+#if os(macOS)
+	@objc static let processId = NSRunningApplication.current.processIdentifier
 
 	private static var isSandboxed = 0
+#endif
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -36,7 +36,7 @@ extension THRunningApp {
 	}
 
 	@objc class func buildDate() -> Date? {
-		return FileManager.th_modDate1970(atPath: Bundle.main.executablePath)
+		FileManager.th_modDate1970(atPath: Bundle.main.executablePath)
 	}
 	
 	@objc class func config() -> [String: Any] {
@@ -68,25 +68,23 @@ extension THRunningApp {
 	@objc class func killOtherApps(_ bundleId: String? = nil) {
 
 		if isSandboxedApp() == true {
-			THLogError("not yet supported in sandboxed environement")
+			THLogError("not yet supported by sandboxed environement")
 			return
 		}
 		
-		let bundleId = bundleId ?? Bundle.main.bundleIdentifier
-		THFatalError(bundleId == nil, "bundleId == nil bundle:\(Bundle.main)")
+		guard let bundleId = bundleId ?? Bundle.main.bundleIdentifier
+		else {
+			THFatalError("bundleId == nil bundle:\(Bundle.main)")
+		}
 
 		let myPid = NSRunningApplication.current.processIdentifier
-		let apps = NSRunningApplication.runningApplications(withBundleIdentifier: bundleId!)
+		let apps = NSRunningApplication.runningApplications(withBundleIdentifier: bundleId)
 
-		for app in apps {
-			if app.processIdentifier == myPid {
-				continue
-			}
+		for app in apps.filter({ $0.processIdentifier != myPid }) {
+			var tryCount = 0
+			while tryCount < 10 {
 
-			var nb_try = 0
-			while nb_try < 10 {
-				
-				if nb_try == 0 {
+				if tryCount == 0 {
 					if app.terminate() == true || app.forceTerminate() == true {
 						break
 					}
@@ -97,9 +95,9 @@ extension THRunningApp {
 					break
 				}
 
-				nb_try += 1
-				THLogError("can not kill app:\(app) with pid:\(app.processIdentifier), r:\(r), retrying:\(nb_try)")
-				Thread.sleep(forTimeInterval: 1.0)
+				tryCount += 1
+				THLogError("can not kill app:\(app) with pid:\(app.processIdentifier), r:\(r), tryCount:\(tryCount)")
+				Thread.sleep(forTimeInterval: 0.5)
 			}
 		}
 	}

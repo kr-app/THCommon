@@ -7,7 +7,7 @@ class THDistantObject: NSObject {
 
 	var lastUpdate: Date?
 	var isUpdating: Bool { task != nil }
-	var lastError: String?
+	var lastError: (date: Date, error: String)?
 
 	private var task: URLSessionTask?
 
@@ -15,9 +15,9 @@ class THDistantObject: NSObject {
 		THFatalError("not implemented by subclass")
 	}
 	
-	func concludeUpdate(withError error: String?) {
+	private func concludeUpdate(withError error: String?) {
 		self.task = nil
-		self.lastError = error
+		self.lastError = error != nil ? (date: Date(), error: error!) : nil
 	}
 
 	func update(urlSession: URLSession, completion: @escaping (Bool, String?) -> Void) {
@@ -89,10 +89,6 @@ class THDistantObject: NSObject {
 	}
 
 	func parse(data: Data) -> String? {
-		THFatalError("not implemented by subclass")
-	}
-
-	func parse(data: Data, withDelegate delegate: Any) -> String? {
 		THFatalError("not implemented by subclass")
 	}
 
