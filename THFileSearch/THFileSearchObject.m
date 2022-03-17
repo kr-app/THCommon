@@ -11,19 +11,26 @@
 
 NSString *THFileSearchObjectUpdatedNotification=@"THFileSearchObjectUpdatedNotification";
 
+static BOOL returnNoWithMessage(NSString *msg, NSString **pMessage)
+{
+	if (pMessage!=NULL)
+		*pMessage=msg;
+	return NO;
+}
+
 + (BOOL)canStartSearch:(NSString*)scopeDir message:(NSString**)pMessage
 {
 	if (scopeDir==nil)
-		return TH_ReturnNoWithMessage(THLocalizedString(@"The directory is not specified."),pMessage);
+		return returnNoWithMessage(THLocalizedString(@"The directory is not specified."),pMessage);
 
 	BOOL isDir=NO;
 	if ([[NSFileManager defaultManager] fileExistsAtPath:scopeDir isDirectory:&isDir]==NO)
-		return TH_ReturnNoWithMessage(THLocalizedString(@"Directory does not exist."),pMessage);
+		return returnNoWithMessage(THLocalizedString(@"Directory does not exist."),pMessage);
 	if (isDir==NO)
-		return TH_ReturnNoWithMessage(THLocalizedString(@"The target path is not a directory."),pMessage);
+		return returnNoWithMessage(THLocalizedString(@"The target path is not a directory."),pMessage);
 
 	if ([[NSFileManager defaultManager] isReadableFileAtPath:scopeDir]==NO)
-		return TH_ReturnNoWithMessage(THLocalizedString(@"No directory access."),pMessage);
+		return returnNoWithMessage(THLocalizedString(@"No directory access."),pMessage);
 
 	return YES;
 }

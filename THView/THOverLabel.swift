@@ -6,7 +6,7 @@ import Cocoa
 @objc class THOverLabel: THOverView {
 
 	@objc var stringValue: String?
-	@objc var font: NSFont = NSFont.systemFont(ofSize: NSFont.systemFontSize(for: .regular))
+	@objc var font: NSFont = NSFont.th_systemFont(ofControlSize: .regular)
 	@objc var textColor: NSColor = .black
 	@objc var textAlignment: NSTextAlignment = .left
 

@@ -19,16 +19,10 @@ CGFloat CGFloatRint(CGFloat value);		/* arrondi normal */
 //--------------------------------------------------------------------------------------------------------------------------------------------
 
 //--------------------------------------------------------------------------------------------------------------------------------------------
-//BOOL TH_IsEqualNSString(NSString *aString, NSString *anotherString);
-//BOOL TH_IsEqualNSPoint(NSPoint point, NSPoint anotherPoint, CGFloat tolerance);
+BOOL TH_IsEqualNSPoint(NSPoint point, NSPoint anotherPoint, CGFloat tolerance);
 //--------------------------------------------------------------------------------------------------------------------------------------------
 
 //--------------------------------------------------------------------------------------------------------------------------------------------
-//NSColor* TH_RGBACOLOR(CGFloat r, CGFloat g, CGFloat b, CGFloat a);
-//NSColor* TH_RGBCOLOR(CGFloat r, CGFloat g, CGFloat b);
-//--------------------------------------------------------------------------------------------------------------------------------------------
-
-//--------------------------------------------------------------------------------------------------------------------------------------------
-//id TH_ReturnNilWithMessage(NSString *msg, NSString **pMessage);
-//BOOL TH_ReturnNoWithMessage(NSString *msg, NSString **pMessage);
+NSColor* TH_RGBACOLOR(CGFloat r, CGFloat g, CGFloat b, CGFloat a);
+NSColor* TH_RGBCOLOR(CGFloat r, CGFloat g, CGFloat b);
 //--------------------------------------------------------------------------------------------------------------------------------------------

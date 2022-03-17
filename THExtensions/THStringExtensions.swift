@@ -172,7 +172,7 @@ extension String {
 		(self as NSString).range(of: prefix, options: .caseInsensitive).location == 0
 	}
 
-	func th_isLike(_ string: String) -> Bool {
+	func th_containsLike(_ string: String) -> Bool {
 		(self as NSString).range(of: string, options: [.caseInsensitive, .diacriticInsensitive]).location != NSNotFound
 	}
 

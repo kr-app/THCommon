@@ -13,7 +13,7 @@ import Cocoa
 		if placeHolder != nil && self.placeHolder == nil {
 			var mAttrs = attrs
 			if mAttrs[NSAttributedString.Key.font] == nil {
-				mAttrs[NSAttributedString.Key.font] = self.font != nil ? self.font : NSFont.systemFont(ofSize: NSFont.systemFontSize(for: .small))
+				mAttrs[NSAttributedString.Key.font] = self.font != nil ? self.font : NSFont.th_systemFont(ofControlSize: .small)
 			}
 			if mAttrs[NSAttributedString.Key.foregroundColor] == nil {
 				mAttrs[NSAttributedString.Key.foregroundColor] = NSColor(white: 0.5, alpha: 1.0)

@@ -61,7 +61,8 @@ extension DefaultStringInterpolation {
 extension Double {
 
 	func th_string(_ digit: Int = 3) -> String {
-		return String(format: "%.\(digit)f", self)
+		let r = String(format: "%.\(digit)f", self)
+		return ((digit == 3 && r.hasSuffix(".000")) || (digit == 2 && r.hasSuffix(".00")) || (digit == 1 && r.hasSuffix(".0"))) ? String(format: "%.0f", self) : r
 	}
 
 }
@@ -73,9 +74,9 @@ extension TimeInterval {
 }
 
 extension Int {
-	var th_Kio: Int { return self * 1024 }
-	var th_Mio: Int { return self * 1024.th_Kio }
-	var th_Gio: Int { return self * 1024.th_Mio }
+	var th_Kio: Int { self * 1024 }
+	var th_Mio: Int { self * 1024.th_Kio }
+	var th_Gio: Int { self * 1024.th_Mio }
 }
 //-----------------------------------------------------------------------------------------------------------------------------------------
 

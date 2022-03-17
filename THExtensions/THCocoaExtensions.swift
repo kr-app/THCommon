@@ -177,6 +177,21 @@ extension NSTableView {
 
 
 //--------------------------------------------------------------------------------------------------------------------------------------------
+extension NSFont {
+
+	class func th_boldSystemFont(ofControlSize controlSize: NSControl.ControlSize) -> NSFont {
+		NSFont.boldSystemFont(ofSize: NSFont.systemFontSize(for: controlSize))
+	}
+
+	class func th_systemFont(ofControlSize controlSize: NSControl.ControlSize) -> NSFont {
+		NSFont.systemFont(ofSize: NSFont.systemFontSize(for: controlSize))
+	}
+
+}
+//--------------------------------------------------------------------------------------------------------------------------------------------
+
+
+//--------------------------------------------------------------------------------------------------------------------------------------------
 @objc extension NSVisualEffectView {
 
 	@objc class func th_maskImage(cornerRadius: CGFloat) -> NSImage {
