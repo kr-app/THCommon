@@ -3,22 +3,22 @@
 import Cocoa
 
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-class THAsScript: NSObject {
+@objc class THAsScript: NSObject {
 
-	static var runningScript: [String: Any]?
-	static var cachesDir: String!
+	private static var runningScript: [String: Any]?
+	private static var cachesDir: String!
 	
-	var name: String!
-	var source: String!
+	@objc var name: String!
+	@objc var source: String!
 
-	var resultAed: NSAppleEventDescriptor?
-	var resultErrorInfo: NSDictionary?
+	@objc var resultAed: NSAppleEventDescriptor?
+	@objc var resultErrorInfo: NSDictionary?
 
-	class func hasRunningScript() -> Bool {
+	@objc class func hasRunningScript() -> Bool {
 		Self.runningScript != nil ? true : false
 	}
 
-	init(name: String, source: String, rawMultilines: Bool = false) {
+	@objc init(name: String, source: String) {
 		self.name = name
 		self.source = source
 	}
@@ -27,7 +27,7 @@ class THAsScript: NSObject {
 		th_description("name: \(self.name)")
 	}
 
-	func execute(forRunner runner: Any) -> NSAppleEventDescriptor? {
+	@objc func execute(forRunner runner: Any) -> NSAppleEventDescriptor? {
 
 		THFatalError(Thread.isMainThread == false, "should be executed on main thread")
 
@@ -202,20 +202,20 @@ class THAsScript: NSObject {
 
 
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-class THAsScriptManager {
-	static let shared = THAsScriptManager()
+@objc class THAsScriptManager: NSObject {
+	@objc static let shared = THAsScriptManager()
 
 	private var scripts = [THAsScript]()
 
-	func removeAllScripts() {
+	@objc func removeAllScripts() {
 		scripts.removeAll()
 	}
 
-	func script(named name: String) -> THAsScript? {
+	@objc func script(named name: String) -> THAsScript? {
 		return scripts.first(where: {$0.name == name })
 	}
 
-	func addScript(withSource source: String, forName name: String) -> THAsScript {
+	@objc func addScript(withSource source: String, forName name: String) -> THAsScript {
 		let script = THAsScript(name: name, source:source)
 		scripts.append(script)
 		return script

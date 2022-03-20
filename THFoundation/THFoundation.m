@@ -10,6 +10,15 @@ CGFloat CGFloatRint(CGFloat value) { return rint(value); }		/* arrondi normal */
 
 
 //--------------------------------------------------------------------------------------------------------------------------------------------
+BOOL TH_IsEqualNSString(NSString *string, NSString *anotherString)
+{
+	if (string==anotherString)
+		return YES;
+	if (string!=nil && anotherString!=nil && CFStringCompare((__bridge CFStringRef)string,(__bridge CFStringRef)anotherString,0)==kCFCompareEqualTo)
+		return YES;
+	return NO;
+}
+
 BOOL TH_IsEqualNSPoint(NSPoint point, NSPoint anotherPoint, CGFloat tolerance)
 {
 	if (tolerance==0.0)

@@ -40,7 +40,7 @@ import Cocoa
 
 
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-class THHighlightedTableViewScrollView: NSScrollView {
+@objc class THHighlightedTableViewScrollView: NSScrollView {
 
 	private var mEnclosedTableView: THHighlightedTableView?
 	
@@ -54,7 +54,7 @@ class THHighlightedTableViewScrollView: NSScrollView {
 		updateHighLightedCellAfterScroll()
 	}
 
-	func updateHighLightedCellAfterScroll() {
+	@objc func updateHighLightedCellAfterScroll() {
 		if mEnclosedTableView == nil {
 			mEnclosedTableView = self.documentView as? THHighlightedTableView
 			THFatalError(mEnclosedTableView == nil, "mEnclosedTableView == nil")
@@ -69,11 +69,11 @@ class THHighlightedTableViewScrollView: NSScrollView {
 
 
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-protocol THHighlightedTableViewDelegateProtocol: NSTableViewDelegate {
+@objc protocol THHighlightedTableViewDelegateProtocol: NSTableViewDelegate {
 	func highlightedTableView(_ tableView: THHighlightedTableView, didHighlightRow highlightedRow: Int, previousHighlightedRow: Int)
 }
 
-class THHighlightedTableView: NSTableView {
+@objc class THHighlightedTableView: NSTableView {
 	private var mHighlightedTrackingArea: NSTrackingArea?
 	private var mFirstHighlightedPoint: NSPoint?
 	private var mHighlightedRow = -1
@@ -102,7 +102,7 @@ class THHighlightedTableView: NSTableView {
 
 	// MARK: -
 
-	func startHighlightedTracking() {
+	@objc func startHighlightedTracking() {
 		if mHighlightedTrackingArea != nil {
 			return
 		}
@@ -111,7 +111,7 @@ class THHighlightedTableView: NSTableView {
 		refreshHighlightedTracking()
 	}
 
-	func stopHighlightedTracking() {
+	@objc func stopHighlightedTracking() {
 		mHighlightedRow = -1
 
 		if let highlightedTrackingArea = mHighlightedTrackingArea {
@@ -119,7 +119,7 @@ class THHighlightedTableView: NSTableView {
 		}
 	}
 
-	func refreshHighlightedTracking() {
+	@objc func refreshHighlightedTracking() {
 		if let highlightedTrackingArea = mHighlightedTrackingArea {
 			removeTrackingArea(highlightedTrackingArea)
 		}
@@ -139,7 +139,7 @@ class THHighlightedTableView: NSTableView {
 
 	// MARK: -
 
-	func updateHighLightedCell(withPoint point: NSPoint) {
+	@objc func updateHighLightedCell(withPoint point: NSPoint) {
 		if mFirstHighlightedPoint == nil && mHighlightedRow == 0 {
 			mHighlightedRow = -1
 		}
@@ -168,7 +168,7 @@ class THHighlightedTableView: NSTableView {
 
 	// MARK: -
 
-	func canHightlight() -> Bool {
+	@objc func canHightlight() -> Bool {
 		if self.window?.isKeyWindow == true || NSApplication.shared.isActive == false {
 			return true
 		}
@@ -211,7 +211,7 @@ class THHighlightedTableView: NSTableView {
 
 	// MARK: -
 
-	func updateHighLightedRowFromSelectionDidChange() {
+	@objc func updateHighLightedRowFromSelectionDidChange() {
 		if mHighlightedRowIsChanging == true {
 			return
 		}
@@ -222,7 +222,7 @@ class THHighlightedTableView: NSTableView {
 		self.highlightedDelegate?.highlightedTableView(self, didHighlightRow: mHighlightedRow, previousHighlightedRow: pRow)
 	}
 
-	func updateHighLightedCellAfterScroll() {
+	@objc func updateHighLightedCellAfterScroll() {
 		guard let location = self.window?.mouseLocationOutsideOfEventStream
 		else {
 			return
@@ -230,12 +230,12 @@ class THHighlightedTableView: NSTableView {
 		updateHighLightedCell(withPoint: self.convert(location, from: nil))
 	}
 
-	func updateHighLightedCellAfterDeletion() {
+	@objc func updateHighLightedCellAfterDeletion() {
 		mHighlightedRow = -1
 		updateHighLightedCellAfterScroll()
 	}
 
-	func unhighlightRow() {
+	@objc func unhighlightRow() {
 		let pRow = mHighlightedRow
 		mHighlightedRow = -1
 		
@@ -244,7 +244,7 @@ class THHighlightedTableView: NSTableView {
 
 	// MARK: -
 
-	func convertWindowPoint(forRow row: Int) -> NSPoint {
+	@objc func convertWindowPoint(forRow row: Int) -> NSPoint {
 		let rowRect = self.rect(ofRow: row)
 
 		var pt = NSPoint(rowRect.origin.x, rowRect.origin.y + (rowRect.size.height / 2.0).rounded(.down))

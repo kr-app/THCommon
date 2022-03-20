@@ -1,4 +1,4 @@
-//THBgColorView.swift
+// THBgColorView.swift
 
 #if os(macOS)
 	import Cocoa

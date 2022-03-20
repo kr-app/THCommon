@@ -14,14 +14,12 @@ struct PPPaneRequesterKey {
 
 
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-class PPPaneRequester: NSObject {
-	static let shared = PPPaneRequester()
-
-	static let requestNotificationName = Notification.Name("PPPaneRequester-requestNotification")
-
+@objc class PPPaneRequester: NSObject {
+	@objc static let shared = PPPaneRequester()
+	@objc static let requestNotificationName = Notification.Name("PPPaneRequester-requestNotification")
 	private let myPid = NSRunningApplication.current.processIdentifier
 
-	func requestShowAtPoint(_ point: NSPoint, withData data: Any) {
+	@objc func requestShowAtPoint(_ point: NSPoint, withData data: Any) {
 		THLogInfo("")
 
 		guard let data: Any = (data as? Data) ?? (data as? NSDictionary) ?? (data as? String)
@@ -39,7 +37,7 @@ class PPPaneRequester: NSObject {
 																	 deliverImmediately: true)
 	}
 
-	func requestHide(withAnimation animated: Bool) {
+	@objc func requestHide(withAnimation animated: Bool) {
 		THLogInfo("")
 		
 		DistributedNotificationCenter.default().postNotificationName(Self.requestNotificationName,
@@ -49,7 +47,7 @@ class PPPaneRequester: NSObject {
 																	 deliverImmediately: true)
 	}
 
-	func requestClose(withAnimation animated: Bool) {
+	@objc func requestClose(withAnimation animated: Bool) {
 		THLogInfo("")
 	
 		DistributedNotificationCenter.default().postNotificationName(Self.requestNotificationName,

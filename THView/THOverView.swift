@@ -27,7 +27,7 @@ import Cocoa
 	@objc var repImage: NSImage?
 	@objc var repString: String?
 
-	var respondsWhenIsNotKeyWindow = false
+	@objc var respondsWhenIsNotKeyWindow = false
 	@IBOutlet weak var delegator: THOverViewDelegateProtocol?
 
 	override var isHidden: Bool { didSet { updateAfterHidden(self.isHidden) }}
