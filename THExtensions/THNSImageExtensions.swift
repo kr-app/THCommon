@@ -77,6 +77,23 @@ extension NSImage {
 
 		return img
 	}
+}
+//-----------------------------------------------------------------------------------------------------------------------------------------
+
+
+//-----------------------------------------------------------------------------------------------------------------------------------------
+extension NSImage {
+
+	func th_resized(withFactor factor: CGFloat) -> Self {
+		let sc = CGSize((size.width * factor).rounded(.down), (size.height * factor).rounded(.down))
+		let img = Self(size: sc)
+
+		img.lockFocus()
+			self.draw(in: NSRect(0.0, 0.0, sc.width, sc.height), from: NSRect(0.0, 0.0, size.width, size.height), operation: .sourceOver, fraction: 1.0)
+		img.unlockFocus()
+
+		return img
+	}
 
 	@objc func th_scaledSize(withMaxSize maxSize: CGFloat) -> NSSize {
 		let size = self.size
@@ -128,7 +145,12 @@ extension NSImage {
 
 		return img
 	}
+}
+//-----------------------------------------------------------------------------------------------------------------------------------------
 
+
+//-----------------------------------------------------------------------------------------------------------------------------------------
+ extension NSImage {
 	@objc func th_imageGray() -> Self {
 		guard let cgRef = self.cgImage(forProposedRect: nil, context: nil, hints: nil)
 		else {

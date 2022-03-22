@@ -177,9 +177,15 @@ extension String {
 	}
 
 	func th_trimPrefix(_ prefix: String) -> String {
-		let r = (self as NSString).range(of: prefix)
-		if r.location != NSNotFound {
-			return self.th_substring(from: r.length).th_trimedFirstSpace()
+		if self.hasPrefix(prefix) == true {
+			return self.th_substring(from: prefix.count)
+		}
+		return self
+	}
+
+	func th_trimSuffix(_ suffix: String) -> String {
+		if self.hasSuffix(suffix) == true {
+			return self.th_substring(to: suffix.count)
 		}
 		return self
 	}

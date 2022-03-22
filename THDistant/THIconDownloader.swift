@@ -16,6 +16,7 @@ struct THIconDownloaderConfiguration {
 	var cropIcon = false
 	var roundedIcon = false
 	var cornerRadius: CGFloat = 0.0
+	var scaleFactor: CGFloat = 1.0
 	var excludedHosts: [String]?
 	var inMemory = 0
 }
@@ -44,25 +45,27 @@ fileprivate class Icon : NSObject {
 
 //--------------------------------------------------------------------------------------------------------------------------------------------
 class IconDownloader: NSObject {
-	var identifier: String!
+	private(set) var name: String?
+	private(set) var directory: String?
+
 	var configuration = THIconDownloaderConfiguration()
 
 	private var icons = [Icon]()
-	private var cacheDir: String?
 	private let urlSession = URLSession(configuration: URLSessionConfiguration.th_ephemeral())
 
-	init(identifier: String, cacheDir: String?) {
+	init(name: String? = nil, directory: String? = nil) {
+		THFatalError(name == nil && directory == nil, "name == nil && directory == nil")
+
+		self.name = name
+		self.directory = directory
 
 		super.init()
 
-		if let cacheDir = cacheDir {
-			if FileManager.th_checkCreatedDirectory(atPath: cacheDir) == false {
-				fatalError("th_checkCreatedDirectory == false cacheDir:\(cacheDir)")
+		if let directory = directory {
+			if FileManager.th_checkCreatedDirectory(atPath: directory) == false {
+				fatalError("th_checkCreatedDirectory == false directory:\(directory)")
 			}
 		}
-
-		self.identifier = identifier
-		self.cacheDir = cacheDir
 
 #if DEBUG
 		let cookies = urlSession.configuration.httpCookieStorage
@@ -71,7 +74,7 @@ class IconDownloader: NSObject {
 	}
 	
 	override var description: String {
-		th_description("identifier:\(identifier)")
+		th_description("name:\(name) directory:\(directory)")
 	}
 
 /*	private func setDiskRetention(_ retention: TimeInterval) {
@@ -135,6 +138,10 @@ class IconDownloader: NSObject {
 	private func processReceivedIcon(icon: TH_NSUI_Image) -> TH_NSUI_Image {
 		var img = icon
 
+		if configuration.scaleFactor != 1.0 {
+			img = img.th_resized(withFactor: configuration.scaleFactor)
+		}
+
 #if os(macOS)
 		if configuration.maxSize > 0.0 {
 			img = img.th_resizedImage(withMaxSize: configuration.maxSize, crop: configuration.cropIcon)
@@ -145,17 +152,20 @@ class IconDownloader: NSObject {
 		else if configuration.cornerRadius > 0.0 {
 			img = img.th_image(withCorner: configuration.cornerRadius)
 		}
+		else if configuration.cornerRadius > 0.0 {
+			img = img.th_image(withCorner: configuration.cornerRadius)
+		}
 #endif
 
 		return img
 	}
 
 	private func data(fromImage img: TH_NSUI_Image) -> Data? {
-	#if os(macOS)
-			return img.th_PNGRepresentation()
-	#elseif os(iOS)
-			return img.pngData()
-	#endif
+#if os(macOS)
+		return img.th_PNGRepresentation()
+#elseif os(iOS)
+		return img.pngData()
+#endif
 	}
 
 	fileprivate func didFinishUpdate(ofIcon icon: Icon) {
@@ -175,7 +185,7 @@ class IconDownloader: NSObject {
 			return false
 		}
 
-		let path = cacheDir!.th_appendingPathComponent(file)
+		let path = directory!.th_appendingPathComponent(file)
 		return FileManager.default.fileExists(atPath: path)
 	}
 
@@ -212,9 +222,9 @@ class IconDownloader: NSObject {
 
 		var needsUpdate = false
 
-		if icon.content == nil && cacheDir != nil {
+		if icon.content == nil && directory != nil {
 			if let file = proposedFilename(forRepObject: repObject) {
-				let path = cacheDir!.th_appendingPathComponent(file)
+				let path = directory!.th_appendingPathComponent(file)
 
 				if FileManager.default.fileExists(atPath: path) == true {
 
@@ -289,7 +299,7 @@ class IconDownloader: NSObject {
 			return false
 		}
 
-		let path = cacheDir!.th_appendingPathComponent(file + (receivedData ? ".receivedData" :""))
+		let path = directory!.th_appendingPathComponent(file + (receivedData ? ".receivedData" :""))
 
 		if data.th_write(to: URL(fileURLWithPath: path)) == false {
 			THLogError("can not write data to path:\(path)")
@@ -367,7 +377,7 @@ class IconDownloader: NSObject {
 
 			let p_img = self.processReceivedIcon(icon: d_img)
 
-			if self.cacheDir != nil {
+			if self.directory != nil {
 				if let data = self.configuration.storeRawData == false ? self.data(fromImage: p_img) : data {
 					if self.saveToDisk(data: data, ofIcon: icon) == false {
 						THLogError("saveToDisk == false icon:\(icon)")
@@ -393,7 +403,7 @@ class IconDownloader: NSObject {
 
 //--------------------------------------------------------------------------------------------------------------------------------------------
 class THIconDownloader: IconDownloader {
-	static let shared = THIconDownloader(identifier: "shared", cacheDir: FileManager.th_appCachesDir("THIconDownloader-shared"))
+	static let shared = THIconDownloader(directory: FileManager.th_appCachesDir("THIconDownloader-shared"))
 	static let didLoadNotification = Notification.Name("THIconDownloaderDidLoadNotification")
 
 	override func proposedFilename(forRepObject repObject: AnyHashable) -> String? {
@@ -474,7 +484,7 @@ class THIconDownloader: IconDownloader {
 //--------------------------------------------------------------------------------------------------------------------------------------------
 #if os(macOS)
 class THFavIconLoader: IconDownloader {
-	static let shared = THFavIconLoader(identifier: "shared", cacheDir: FileManager.th_appCachesDir("THFavIconLoader-shared"))
+	static let shared = THFavIconLoader(directory: FileManager.th_appCachesDir("THFavIconLoader-shared"))
 	static let didLoadNotification = Notification.Name("THFavIconLoader-didLoadNotification")
 
 	let genericIcon16 = TH_NSUI_Image(named: "BookmarkURL")!.th_copyAndResize(NSSize(16.0, 16.0))
