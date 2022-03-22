@@ -146,13 +146,13 @@ fileprivate struct SafariScriptingTools {
 						end try
 
 						if (sWindow is not visible or sWindow is miniaturized) then
-							return null
+							return 1
 						end if
 
 						set sDoc to document of sWindow
 
 						if (class of sDoc is not document) then
-							return null
+							return 2
 						end if
 
 						try
@@ -175,8 +175,7 @@ fileprivate struct SafariScriptingTools {
 		}
 
 		if aed.numberOfItems == 2 {
-			if 		let title = aed.atIndex(1)?.stringValue,
-					let url = aed.atIndex(2)?.stringValue {
+			if let title = aed.atIndex(1)?.stringValue, let url = aed.atIndex(2)?.stringValue {
 				return (empty: false, title: title, url: url)
 			}
 		}

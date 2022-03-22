@@ -23,11 +23,14 @@ class THParentAppAlive: NSObject {
 		}
 		else if self.parentPid == nil {
 			self.parentPid = parentPid
-			parentChecker = Timer.scheduledTimer(timeInterval: 5.0, target: self, selector: #selector(timerAction), userInfo: nil, repeats: true)
+			parentChecker?.invalidate()
+			if parentPid > 0 {
+				parentChecker = Timer.scheduledTimer(timeInterval: 5.0, target: self, selector: #selector(timerAction), userInfo: nil, repeats: true)
+			}
 		}
 	}
 
-	@objc func timerAction(_ sender: Timer) {
+	@objc private func timerAction(_ sender: Timer) {
 		let parentPid = self.parentPid!
 
 		let app = NSRunningApplication(processIdentifier: pid_t(parentPid))

@@ -99,6 +99,10 @@ import Cocoa
 		self.backgroundColor = .clear
 		self.isOpaque = false
 	}
+
+	deinit {
+		THLogDebug("")
+	}
 	
 	override func setFrame(_ frameRect: NSRect, display flag: Bool) {
 		if self.inLiveResize == false {
