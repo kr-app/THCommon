@@ -1,6 +1,10 @@
 // THLog.h
 
-#import <Cocoa/Cocoa.h>
+#ifdef TH_TARGET_OSX
+	#import <Cocoa/Cocoa.h>
+#elif defined TH_TARGET_IOS
+	#import <UIKit/UIKit.h>
+#endif
 
 //--------------------------------------------------------------------------------------------------------------------------------------------
 enum

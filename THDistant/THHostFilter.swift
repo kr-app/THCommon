@@ -1,55 +1,43 @@
 // THHostFilter.swift
 
-import Cocoa
+#if os(macOS)
+	import Cocoa
+#elseif os(iOS)
+	import UIKit
+#endif
 
 //-----------------------------------------------------------------------------------------------------------------------------------------
-fileprivate enum HostRule: Int {
-	case none = 0
-	case subdomain = 1
-
-	var description: String {
-		get {
-			switch self {
-			case .none:
-				return "none"
-			case .subdomain:
-				return "subdomain"
-			}
-		}
-	}
-}
-
 fileprivate class HostDomain: NSObject, THDictionarySerializationProtocol {
-	var host: String!
-	var rule: HostRule!
+	let host: String
+	var subdomain = false
 	var accepted = false
 
-	init(host: String, rule: HostRule, accepted: Bool) {
+	init(host: String, subdomain: Bool, accepted: Bool) {
 		self.host = host
-		self.rule = rule
+		self.subdomain = subdomain
 		self.accepted = accepted
 	}
 	
 	init(rawHost: String, accepted: Bool) {
 		var h = rawHost
-		var rule = HostRule.none
+		var subdomain = false
 	
-		if h.hasPrefix("*.") == true || h.hasSuffix(".*") == true {
+		if h.hasPrefix("*.") || h.hasSuffix(".*") {
 			h = String(h.dropFirst("*".count))
-			rule = .subdomain
+			subdomain = true
 		}
 	
 		self.host = h
-		self.rule = rule
+		self.subdomain = subdomain
 		self.accepted = accepted
 	}
 
 	override var description: String {
-		th_description("host:\(host) rule:\(rule.description) accepted:\(accepted))")
+		th_description("host:\(host) subdomain:\(subdomain) accepted:\(accepted))")
 	}
 
 	func match(withHost host: String) -> Bool {
-		if rule == .subdomain {
+		if subdomain == true {
 			if host.contains(self.host) == true {
 				return true
 			}
@@ -60,8 +48,8 @@ fileprivate class HostDomain: NSObject, THDictionarySerializationProtocol {
 	func dictionaryRepresentation() -> THDictionaryRepresentation {
 		let coder = THDictionaryRepresentation()
 		
-		coder.setString(host!, forKey: "host")
-		coder.setInt(rule.rawValue, forKey: "rule")
+		coder.setString(host, forKey: "host")
+		coder.setBool(subdomain, forKey: "subdomain")
 		coder.setBool(accepted, forKey: "accepted")
 		
 		return coder
@@ -69,7 +57,7 @@ fileprivate class HostDomain: NSObject, THDictionarySerializationProtocol {
 
 	required init(withDictionaryRepresentation dictionaryRepresentation: THDictionaryRepresentation) {
 		host = dictionaryRepresentation.string(forKey: "host")!
-		rule = HostRule(rawValue: dictionaryRepresentation.int(forKey: "rules") ?? HostRule.none.rawValue)!
+		subdomain = dictionaryRepresentation.bool(forKey: "subdomain") ?? (dictionaryRepresentation.int(forKey: "rules") == 1 ? true : false)
 		accepted = dictionaryRepresentation.bool(forKey: "accepted")!
 	}
 
@@ -220,11 +208,9 @@ class THHostFilter: NSObject, THDictionarySerializationProtocol {
 	private func checkDefaultHosts() {
 		for defaultHost in HostDomain.defaultHosts() {
 
-			if let host = hosts.first(where: {$0.host == defaultHost.host }) {
-				if host.accepted == defaultHost.accepted && host.rule == defaultHost.rule {
-					continue
-				}
-			
+			if let host = hosts.first(where: { 	$0.host == defaultHost.host &&
+																$0.accepted == defaultHost.accepted &&
+																$0.subdomain == defaultHost.subdomain }) {
 				THLogInfo("updated host domain:\(host)")
 				hosts.removeAll(where: {$0.host == host.host })
 				hosts.append(defaultHost)

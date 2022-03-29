@@ -7,7 +7,7 @@
 #endif
 
 //--------------------------------------------------------------------------------------------------------------------------------------------
-@objc class THNetworkActivity: NSObject {
+class THNetworkActivity {
 	static let shared = THNetworkActivity()
 
 	private var clientsCount: Int = 0
@@ -61,11 +61,11 @@
 		updateStatus()
 	}
 
-	@objc class func addClient(_ client: Any) {
+	class func addClient(_ client: Any) {
 		Self.shared.addClient(client)
 	}
 
-	@objc class func removeClient(_ client: Any) {
+	class func removeClient(_ client: Any) {
 		Self.shared.removeClient(client)
 	}
 

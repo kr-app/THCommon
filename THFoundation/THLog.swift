@@ -142,7 +142,7 @@ fileprivate func push_log(_ level: THLogLevel, msg: String, /*sender: String,*/ 
 #endif
 #if DEBUG
 	case .debug:
-		log = "📘 \(function) \(msg)"
+		log = "📘 \(filename) \(line) \(function) \(msg)"
 #endif
 	}
 
