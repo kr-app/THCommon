@@ -27,7 +27,7 @@ class THDistantObject: NSObject {
 
 		let request = updateRequest()
 	
-		THLogInfo("update, request:\(request.url), object:\(self)")
+		THLogInfo("request:\(request.url)")
 
 		self.lastUpdate = Date()
 		let t0 = CFAbsoluteTimeGetCurrent()
@@ -39,7 +39,7 @@ class THDistantObject: NSObject {
 			}
 
 			let te = CFAbsoluteTimeGetCurrent() - t0
-			THLogInfo("updated in \(Double(te).th_string()) sec")
+			THLogInfo("request:\(request.url), response time: \(Double(te).th_string()) sec")
 
 			guard 	let rep = response as? HTTPURLResponse,
 						let data = data

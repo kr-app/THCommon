@@ -160,14 +160,6 @@ extension NSString {
 //-----------------------------------------------------------------------------------------------------------------------------------------
 extension String {
 
-	func th_substring(to toIndex: Int) -> String {
-		(self as NSString).substring(to: toIndex)
-	}
-
-	func th_substring(from fromIndex: Int) -> String {
-		(self as NSString).substring(from: fromIndex)
-	}
-
 	func th_hasPrefixInsensitive(_ prefix: String) -> Bool {
 		(self as NSString).range(of: prefix, options: .caseInsensitive).location == 0
 	}
@@ -181,17 +173,11 @@ extension String {
 	}
 
 	func th_trimPrefix(_ prefix: String) -> String {
-		if self.hasPrefix(prefix) == true {
-			return self.th_substring(from: prefix.count)
-		}
-		return self
+		self.hasPrefix(prefix) ? String(self.dropFirst(prefix.count)) : self
 	}
 
 	func th_trimSuffix(_ suffix: String) -> String {
-		if self.hasSuffix(suffix) == true {
-			return self.th_substring(to: suffix.count)
-		}
-		return self
+		self.hasSuffix(suffix) ? String(self.dropLast(suffix.count)) : self
 	}
 
 	func th_terminating(by suffix: String) -> String {
