@@ -12,6 +12,7 @@ import Cocoa
 
 	override func awakeFromNib() {
 		super.awakeFromNib()
+
 		if trackingArea == nil {
 			generate_trackingArea()
 		}
@@ -36,12 +37,8 @@ import Cocoa
 			removeTrackingArea(trackingArea)
 		}
 
-		let options: NSTrackingArea.Options = [ .mouseEnteredAndExited,
-																		.activeAlways,
-																		.inVisibleRect]
-	
-		trackingArea = NSTrackingArea(	rect: NSRect(0.0, 0.0, self.frame.size.width, self.frame.size.height),
-																options: options,
+		trackingArea = NSTrackingArea(		rect: NSRect(0.0, 0.0, self.frame.size.width, self.frame.size.height),
+																options: [.mouseEnteredAndExited, .activeAlways, .inVisibleRect],
 																owner: self,
 																userInfo: nil)
 		addTrackingArea(trackingArea!)

@@ -18,7 +18,7 @@ struct THWebBrowserScriptingTools {
 		hasRunningSafari() ? SafariScriptingTools.sourceOfFrontSite(targetUrl: targetUrl) : nil
 	}
 
-	static func rssFeedsOfFrontTab() -> [RssFromSource]? {
+	static func rssFeedsOfFrontTab() -> [THWebPageRssAttrs]? {
 		hasRunningSafari() ? SafariScriptingTools.frontRssFeeds() : nil
 	}
 
@@ -232,7 +232,7 @@ fileprivate struct SafariScriptingTools {
 		return nil
 	}
 
-	static func frontRssFeeds() -> [RssFromSource]? {
+	static func frontRssFeeds() -> [THWebPageRssAttrs]? {
 		var script = THAsScriptManager.shared.script(named: "safariFrontRssFeeds")
 
 		if script == nil {
@@ -262,10 +262,10 @@ fileprivate struct SafariScriptingTools {
 
 		let siteUrl = URL(string: site)!
 
-		var r = RssFromSource.extractFromParser(site: siteUrl, source: source)
+		var r = THWebPageRssAttrs.extractFromParser(site: siteUrl, source: source)
 		if r == nil {
 			THLogError("can not get source from parser, retrying with text searching…")
-			r = RssFromSource.extractFromSearch(site: siteUrl, source: source)
+			r = THWebPageRssAttrs.extractFromSearch(site: siteUrl, source: source)
 		}
 
 		if r == nil || r!.count == 0 {
