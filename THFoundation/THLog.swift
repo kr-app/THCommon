@@ -124,26 +124,30 @@ fileprivate func push_log(_ level: THLogLevel, msg: String, /*sender: String,*/ 
 	switch level {
 	case .error:
 #if DEBUG
-		log = "📕 \(filename) \(line) \(function) \(msg)"
+		log = "📕 \(filename) \(line) \(function)"
 #else
-		log = "ERROR [\(filename):\(line)] [\(function)] \(msg)"
+		log = "ERROR [\(filename):\(line)] [\(function)]"
 #endif
 	case .warning:
 #if DEBUG
-		log = "📙 \(filename) \(line) \(function) \(msg)"
+		log = "📙 \(filename) \(line) \(function)"
 #else
-		log = "WARNING [\(filename):\(line)] [\(function)] \(msg)"
+		log = "WARNING [\(filename):\(line)] [\(function)]"
 #endif
 	case .info:
 #if DEBUG
-		log = "📒 \(filename) \(line) \(function) \(msg)"
+		log = "📒 \(filename) \(line) \(function)"
 #else
-		log = "INFO [\(filename) \(line)] [\(function)] \(msg)"
+		log = "INFO [\(filename) \(line)] [\(function)]"
 #endif
 #if DEBUG
 	case .debug:
-		log = "📘 \(filename) \(line) \(function) \(msg)"
+		log = "📘 \(filename) \(line) \(function)"
 #endif
+	}
+
+	if msg.isEmpty == false {
+		log += " \(msg)"
 	}
 
 	THLogConsole.write(log, at: date)
