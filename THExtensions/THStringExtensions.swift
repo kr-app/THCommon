@@ -35,29 +35,33 @@ extension String {
 	}
 
 	private func th_trimedLastSpace() -> String {
-		if self.hasSuffix(" ") == true {
+		if self.hasSuffix(" ") {
 			return String(self.dropLast(1))
 		}
 		return self
 	}
 
-	func th_truncate(max: Int, by byTruncate: NSLineBreakMode = .byTruncatingTail, terminator: String = "…") -> String {
+	func th_truncate(max: Int, by byTruncate: NSLineBreakMode = .byTruncatingTail, substitutor: String? = "…") -> String {
 		if self.count < max {
 			return self
 		}
 
-		if byTruncate == .byTruncatingMiddle {
-			let offset: Int = max / 2
-			return String(self.prefix(offset)).th_trimedFirstSpace() + terminator + String(self.suffix(offset)).th_trimedFirstSpace()
+		if let substitutor = substitutor {
+			if byTruncate == .byTruncatingMiddle {
+				let offset: Int = max / 2
+				return String(self.prefix(offset)).th_trimedFirstSpace() + substitutor + String(self.suffix(offset)).th_trimedFirstSpace()
+			}
+
+			return String(self.prefix(max)).th_trimedLastSpace() + substitutor
 		}
-	
-		return String(self.prefix(max)).th_trimedLastSpace() + terminator
+
+		return String(self.prefix(max)).th_trimedLastSpace()
 	}
 
 	func th_truncate(	max: CGFloat,
 								withAttrs attrs: [NSAttributedString.Key: Any],
 								by byTruncate: NSLineBreakMode = .byTruncatingTail,
-								substitutor: String = "…") -> String {
+								substitutor: String? = "…") -> String {
 
 		if self.count < 40 {
 			return self
@@ -83,7 +87,7 @@ extension String {
 		else if byTruncate == .byTruncatingTail {
 			var offset = 0
 			while true {
-				let s = String(self.prefix(offset + 1)).th_trimedLastSpace() + substitutor
+				let s = String(self.prefix(offset + 1)).th_trimedLastSpace() + "…"
 				if s.size(withAttributes: attrs).width <= max {
 					offset += 1
 					continue
@@ -101,7 +105,7 @@ extension String {
 //--------------------------------------------------------------------------------------------------------------------------------------------
 extension String {
 
-	func th_write(toFile file: String, atomically: Bool, encoding: Encoding) -> Bool {
+	func th_write(toFile file: String, atomically: Bool = true, encoding: String.Encoding = .utf8) -> Bool {
 		do {
 			try write(toFile: file, atomically: atomically, encoding: encoding)
 			return true

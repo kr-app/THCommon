@@ -11,6 +11,7 @@ class THLoggerConfig: NSObject {
 	var dirPath: String?
 	var retentionDays: TimeInterval = 30 * 24 * 3600
 	var rotationLogCount = 50_000
+	var fileCompression = false
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -74,18 +75,18 @@ class THLoggerConfig: NSObject {
 
 		guard let compressed = try? data.compressed(using: .zlib)
 		else {
-			THLogError("compressed == nil file:\(file)")
+			THLogError("compressed == nil file:\(file.th_abbreviatingWithTildeInPath)")
 			return false
 		}
 
 		let path = (file as NSString).appendingPathExtension("zlib")!
 		if compressed.th_write(to: path) == false {
-			THLogError("th_write == false path:\(path)")
+			THLogError("th_write == false path:\(path.th_abbreviatingWithTildeInPath)")
 			return false
 		}
 
 		if FileManager.default.th_removeItem(atPath: file) == false {
-			THLogError("removeItemAtPath == false file:\(file)")
+			THLogError("removeItemAtPath == false file:\(file.th_abbreviatingWithTildeInPath)")
 			return false
 		}
 
@@ -100,19 +101,19 @@ class THLoggerConfig: NSObject {
 
 		guard let dirContents = try? FileManager.default.contentsOfDirectory(atPath: dirPath)
 		else {
-			THLogError("dirContents == nil dirPath:\(dirPath)")
+			THLogError("dirContents == nil dirPath:\(dirPath.th_abbreviatingWithTildeInPath)")
 			return
 		}
 
 		for filename in dirContents.filter({ $0.hasPrefix(".") == false }) {
 			let path = dirPath.th_appendingPathComponent(filename)
 
-			if filename.hasSuffix(".log") == true || filename.hasSuffix(".zlib") == true {
-				
+			if filename.hasSuffix(".log") || filename.hasSuffix(".zlib") {
+
 				func deleteObsoleteFile(path: String) -> Bool {
 					guard let modDate = FileManager.th_modDate1970(atPath: path)
 					else {
-						THLogError("modDate == nil path:\(path)")
+						THLogError("modDate == nil path:\(path.th_abbreviatingWithTildeInPath)")
 						return false
 					}
 				
@@ -120,23 +121,23 @@ class THLoggerConfig: NSObject {
 						return false
 					}
 
-					THLogInfo("deleting old log file at path:\(path)")
+					THLogInfo("deleting old log file at path:\(path.th_abbreviatingWithTildeInPath)")
 
 					if FileManager.default.th_removeItem(atPath: path) == false {
-						THLogError("removeItemAtPath == false path:\(path)")
+						THLogError("removeItemAtPath == false path:\(path.th_abbreviatingWithTildeInPath)")
 					}
 
 					return true
 				}
 				
-				if deleteObsoleteFile(path: path) == true {
+				if deleteObsoleteFile(path: path) {
 					continue
 				}
 			}
 
-			if filename.hasSuffix(".log") == true {
+			if config.fileCompression && filename.hasSuffix(".log") {
 				if compressLog(path) == false {
-					THLogError("compressLog == false path:\(path)")
+					THLogError("compressLog == false path:\(path.th_abbreviatingWithTildeInPath)")
 				}
 			}
 

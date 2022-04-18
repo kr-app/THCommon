@@ -212,7 +212,7 @@ class THHostFilter: NSObject, THDictionarySerializationProtocol {
 																$0.accepted == defaultHost.accepted &&
 																$0.subdomain == defaultHost.subdomain }) {
 				THLogInfo("updated host domain:\(host)")
-				hosts.removeAll(where: {$0.host == host.host })
+				hosts.removeAll(where: { $0.host == host.host })
 				hosts.append(defaultHost)
 				continue
 			}
@@ -225,7 +225,7 @@ class THHostFilter: NSObject, THDictionarySerializationProtocol {
 	// MARK: -
 
 	func status(forHost host: String) -> THHostFilterStatus {
-		if let h = hosts.first(where: {$0.match(withHost: host) }) {
+		if let h = hosts.first(where: { $0.match(withHost: host) }) {
 			return h.accepted == true ? .accepted : .refused
 		}
 		return .unknown
@@ -236,7 +236,7 @@ class THHostFilter: NSObject, THDictionarySerializationProtocol {
 			return
 		}
 
-		if let h = hosts.first(where: {$0.match(withHost: host) }) {
+		if let h = hosts.first(where: { $0.match(withHost: host) }) {
 			h.accepted = accepted
 		}
 		else {
