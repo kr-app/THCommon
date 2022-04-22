@@ -18,10 +18,7 @@ extension NSMenu {
 	}
 
 	@objc func th_lastItem() -> NSMenuItem? {
-		if self.numberOfItems > 0 {
-			return self.item(at: self.numberOfItems - 1)
-		}
-		return nil
+		self.numberOfItems > 0 ? self.item(at: self.numberOfItems - 1) : nil
 	}
 
 }

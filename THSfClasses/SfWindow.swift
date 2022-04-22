@@ -102,9 +102,7 @@ import Cocoa
 		coder.setInt(wId, forKey: "wId")
 		coder.setInt(position, forKey: "position")
 		coder.setNSRect(boundsRect, forKey: "boundsRect")
-		if miniatuzied == true {
-			coder.setBool(miniatuzied, forKey: "miniatuzied")
-		}
+		coder.setBool(miniatuzied, forKey: "miniatuzied")
 		coder.setInt(selectedTab, forKey: "selectedTab")
 		coder.setObjects(tabs, forKey: "tabs")
 

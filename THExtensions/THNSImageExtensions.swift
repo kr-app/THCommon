@@ -3,9 +3,9 @@
 import Cocoa
 
 //--------------------------------------------------------------------------------------------------------------------------------------------
-fileprivate class Caches {
-	static var wsIcons = [String: NSImage]()
-}
+//fileprivate class Caches {
+//	static var wsIcons = [String: NSImage]()
+//}
 
 extension NSImage {
 

@@ -1,3 +1,3 @@
 # THCommon
 
-Common classes for all apps
+Common classes required by any apps.

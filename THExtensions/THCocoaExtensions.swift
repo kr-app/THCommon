@@ -25,61 +25,6 @@ extension NSParagraphStyle {
 //-----------------------------------------------------------------------------------------------------------------------------------------
 
 
-//--------------------------------------------------------------------------------------------------------------------------------------------
-extension DateComponents {
-
-	init(withYear year: Int, month: Int, day: Int) {
-		self = Self.init()
-		self.year = year
-		self.month = month
-		self.day = day
-	}
-
-	init(withHour hour: Int, min: Int, sec: Int) {
-		self = Self.init()
-		self.hour = hour
-		self.minute = min
-		self.second = sec
-	}
-
-}
-//--------------------------------------------------------------------------------------------------------------------------------------------
-
-
-//-----------------------------------------------------------------------------------------------------------------------------------------
-extension Calendar {
-
-	func th_midnight(of date: Date) -> Date {
-		self.date(from: self.dateComponents([.year, .month, .day], from: date))!
-	}
-
-}
-//-----------------------------------------------------------------------------------------------------------------------------------------
-
-
-
-//--------------------------------------------------------------------------------------------------------------------------------------------
-extension URLSessionConfiguration {
-
-	class func th_ephemeral() -> URLSessionConfiguration {
-		
-		let conf = URLSessionConfiguration.ephemeral
-		conf.timeoutIntervalForRequest = 30.0
-		conf.httpMaximumConnectionsPerHost = 1
-
-		let cookieStorage = HTTPCookieStorage()
-		cookieStorage.cookieAcceptPolicy = .never
-
-		conf.httpShouldSetCookies = false
-		conf.httpCookieStorage = cookieStorage
-
-		return conf
-	}
-
-}
-//--------------------------------------------------------------------------------------------------------------------------------------------
-
-
 #if os(macOS)
 //--------------------------------------------------------------------------------------------------------------------------------------------
 extension NSShadow {
