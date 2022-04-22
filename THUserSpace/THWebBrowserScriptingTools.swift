@@ -10,8 +10,8 @@ struct THWebBrowserScriptingTools {
 		NSRunningApplication.runningApplications(withBundleIdentifier: safariBundleId).count > 0
 	}
 
-	static func createWindowIfNecessary() -> Bool {
-		FirefoxScriptingTools.createWindowIfNecessary()
+	static func createWindowIfNecessary(page: URL? = nil) -> Int {
+		FirefoxScriptingTools.createWindowIfNecessary(page: page)
 	}
 
 	static func sourceOfFrontTab(targetUrl: String) -> String? {
@@ -33,36 +33,55 @@ struct THWebBrowserScriptingTools {
 //--------------------------------------------------------------------------------------------------------------------------------------------
 fileprivate struct FirefoxScriptingTools {
 
-	static func createWindowIfNecessary() -> Bool {
+	static func createWindowIfNecessary(page: URL? = nil) -> Int {
 		var script = THAsScriptManager.shared.script(named: "CreateWindowIfNecessary")
-		
+
+		let p = FileManager.th_appCachesDir().th_appendingPathComponent("FirefoxScriptingTools-createWindowIfNecessary.html")
+
+		let redir = """
+						<html>
+						<head>
+							<meta http-equiv=\"Refresh\" content=\"0; url='\(page?.absoluteString)'\"/>
+						</head>
+						</html>
+					"""
+
+		if redir.th_write(toFile: p) == false {
+			THLogError("th_write == false p:\(p)")
+			return -1
+		}
+
 		if script == nil {
-			let s = 	"tell application \"Firefox\"\n"
-							+ "try\n"
-								+ "set w to front window\n"
-								+ "if w is visible and w is not miniaturized then\n"
-									+ "return \"has window\"\n"
-								+ "end if\n"
-							+ "end try\n"
-							+ "open \"about:\"\n"
-							+ "return \"new win\"\n"
-						+ "end tell\n"
+			let s = """
+						tell application \"Firefox\"
+							try
+								set w to front window
+									if w is visible and w is not miniaturized then
+										return \"has window\"
+								end if
+							end try
+						open \"\(p)"
+						return \"new win\"
+					end tell
+					"""
 			script = THAsScriptManager.shared.addScript(withSource: s, forName : "CreateWindowIfNecessary")
 		}
 
-		guard let script = script
+		guard let result = script?.execute(forRunner: self)?.stringValue
 		else {
-			THLogError("script == nil")
-			return false
-		}
-
-		if script.execute(forRunner: self) == nil {
 			THLogError("script.execute() == nil")
-			return false
+			return -1
 		}
 
-		THLogInfo("scrupt result:\(script.resultAed)")
-		return true
+		if result == "has window" {
+			return 0
+		}
+		if result == "new window" {
+			return 1
+		}
+
+		THLogError("scrupt result:\(script?.resultAed)")
+		return -1
 	}
 
 }

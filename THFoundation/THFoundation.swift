@@ -84,20 +84,12 @@ func TH_isDebuggerAttached() -> Bool {
 
 //-----------------------------------------------------------------------------------------------------------------------------------------
 #if os(macOS)
-func TH_RGBACOLOR(_ red: CGFloat, _ green: CGFloat, _ blue: CGFloat, _ alpha: CGFloat) -> NSColor {
-	NSColor(deviceRed: red / 255.0, green: green / 255.0, blue: blue / 255.0, alpha: alpha > 1.0 ? 1.0 : alpha)
+func TH_RGBCOLOR(_ red: CGFloat, _ green: CGFloat, _ blue: CGFloat, _ alpha: CGFloat = 1.0) -> NSColor {
+	NSColor(deviceRed: red / 255.0, green: green / 255.0, blue: blue / 255.0, alpha: alpha)
 }
-
-func TH_RGBCOLOR(_ red: CGFloat, _ green: CGFloat, _ blue: CGFloat) -> NSColor {
-	TH_RGBACOLOR(red, green, blue, 1.0)
-}
-
 #elseif os(iOS)
-//return [UIColor colorWithRed:(r)/255.0 green:g/255.0 blue:b/255.0 alpha:1.0];
-
-//UIColor* NT_RGBACOLOR(CGFloat r, CGFloat g, CGFloat b, CGFloat alpha)
-//{
-//return [UIColor colorWithRed:r/255.0 green:g/255.0 blue:b/255.0 alpha:alpha];
-//}
+func TH_RGBCOLOR(_ red: CGFloat, _ green: CGFloat, _ blue: CGFloat, _ alpha: CGFloat = 1.0) -> UIColor {
+	UIColor(red: red / 255.0, green: green / 255.0, blue: blue / 255.0, alpha: alpha)
+}
 #endif
 //-----------------------------------------------------------------------------------------------------------------------------------------
