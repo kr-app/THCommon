@@ -18,8 +18,10 @@ extension String {
 	func th_appendingPathExtension(_ pathExtension: String) -> String { (self as NSString).appendingPathExtension(pathExtension)! }
 	var th_deletingPathExtension: String { (self as NSString).deletingPathExtension }
 
+#if os(macOS)
 	var th_abbreviatingWithTildeInPath: String { (self as NSString).abbreviatingWithTildeInPath }
 	var th_expandingTildeInPath: String { (self as NSString).expandingTildeInPath }
+#endif
 }
 //-----------------------------------------------------------------------------------------------------------------------------------------
 

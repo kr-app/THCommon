@@ -43,17 +43,6 @@ extension DefaultStringInterpolation {
 		}
 	}
 }
-
-//extension Optional {
-//	var d: String {
-//		switch self {
-//			case .some(let value):
-//				return String(describing: value)
-//			case _:
-//				return "nil"
-//		}
-//	}
-//}
 //-----------------------------------------------------------------------------------------------------------------------------------------
 
 

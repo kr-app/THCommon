@@ -75,18 +75,18 @@ class THLoggerConfig: NSObject {
 
 		guard let compressed = try? data.compressed(using: .zlib)
 		else {
-			THLogError("compressed == nil file:\(file.th_abbreviatingWithTildeInPath)")
+			THLogError("compressed == nil file:\(file)")
 			return false
 		}
 
 		let path = (file as NSString).appendingPathExtension("zlib")!
 		if compressed.th_write(to: path) == false {
-			THLogError("th_write == false path:\(path.th_abbreviatingWithTildeInPath)")
+			THLogError("th_write == false path:\(path)")
 			return false
 		}
 
 		if FileManager.default.th_removeItem(atPath: file) == false {
-			THLogError("removeItemAtPath == false file:\(file.th_abbreviatingWithTildeInPath)")
+			THLogError("removeItemAtPath == false file:\(file)")
 			return false
 		}
 
@@ -101,7 +101,7 @@ class THLoggerConfig: NSObject {
 
 		guard let dirContents = try? FileManager.default.contentsOfDirectory(atPath: dirPath)
 		else {
-			THLogError("dirContents == nil dirPath:\(dirPath.th_abbreviatingWithTildeInPath)")
+			THLogError("dirContents == nil dirPath:\(dirPath)")
 			return
 		}
 
@@ -113,7 +113,7 @@ class THLoggerConfig: NSObject {
 				func deleteObsoleteFile(path: String) -> Bool {
 					guard let modDate = FileManager.th_modDate1970(atPath: path)
 					else {
-						THLogError("modDate == nil path:\(path.th_abbreviatingWithTildeInPath)")
+						THLogError("modDate == nil path:\(path)")
 						return false
 					}
 				
@@ -121,10 +121,10 @@ class THLoggerConfig: NSObject {
 						return false
 					}
 
-					THLogInfo("deleting old log file at path:\(path.th_abbreviatingWithTildeInPath)")
+					THLogInfo("deleting old log file at path:\(path)")
 
 					if FileManager.default.th_removeItem(atPath: path) == false {
-						THLogError("removeItemAtPath == false path:\(path.th_abbreviatingWithTildeInPath)")
+						THLogError("removeItemAtPath == false path:\(path)")
 					}
 
 					return true
@@ -137,7 +137,7 @@ class THLoggerConfig: NSObject {
 
 			if config.fileCompression && filename.hasSuffix(".log") {
 				if compressLog(path) == false {
-					THLogError("compressLog == false path:\(path.th_abbreviatingWithTildeInPath)")
+					THLogError("compressLog == false path:\(path)")
 				}
 			}
 
