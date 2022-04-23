@@ -69,19 +69,16 @@ func THFatalError(_ msg: String, function: String = #function, file: String = #f
 
 	//return Never.Body
 	
-#if os(macOS)
 	if Thread.isMainThread == true {
+#if os(macOS)
 		let alert = NSAlert(withTitle: "Fatal Error", message: "\(alert)\n\n\(msg)" , buttons: ["Ok"])
 		alert.runModal()
-	}
 #elseif os(iOS)
-	if Thread.isMainThread == true {
-		var firstWin = UIApplication.shared.keyWindow
-		if firstWin == nil {
-			firstWin = UIApplication.shared.windows.first(where: { $0.rootViewController != nil })
-		}
+		let windows = UIApplication.shared.windows
+		let keyWin = windows.first( where: { $0.isKeyWindow == true }) ?? windows.first(where: { $0.rootViewController != nil })
 
-		var mainVc = firstWin?.rootViewController
+		var mainVc = keyWin?.rootViewController
+
 		if mainVc == nil {
 			mainVc = UIViewController()
 
@@ -90,9 +87,9 @@ func THFatalError(_ msg: String, function: String = #function, file: String = #f
 			w.rootViewController = mainVc
 		}
 	
-		mainVc!.th_showAlert("Fatal Error", "\(alert)\n\n\(msg)")
-	}
+		mainVc?.th_showAlert("Fatal Error", "\(alert)\n\n\(msg)")
 #endif
+	}
 
 	return fatalError(msg)
 }
