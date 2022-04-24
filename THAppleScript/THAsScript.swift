@@ -212,7 +212,7 @@ import Cocoa
 	}
 
 	@objc func script(named name: String) -> THAsScript? {
-		return scripts.first(where: {$0.name == name })
+		return scripts.first(where: { $0.name == name })
 	}
 
 	@objc func addScript(withSource source: String, forName name: String) -> THAsScript {

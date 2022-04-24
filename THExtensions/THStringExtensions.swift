@@ -193,7 +193,7 @@ extension String {
 
 		for s in [".", "?", ":", "!", "?", "…"] {
 			if hasSuffix(s) {
-				return self as String
+				return self
 			}
 		}
 
