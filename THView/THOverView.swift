@@ -95,7 +95,7 @@ import Cocoa
 		if hidden == true && trackingArea != nil {
 			removeTrackingArea(trackingArea!)
 		}
-		else if hidden {
+		else if hidden == false {
 			generate_trackingArea()
 			needsDisplay = true
 		}
@@ -126,7 +126,7 @@ import Cocoa
 	}
 
 	override func mouseExited(with event: NSEvent) {
-		if isDisabled || isEntered {
+		if isDisabled || isEntered == false {
 			return
 		}
 
@@ -152,7 +152,7 @@ import Cocoa
 	}
 
 	override func mouseDragged(with event: NSEvent) {
-		if isDisabled || isPressed {
+		if isDisabled || isPressed == false {
 			return
 		}
 
@@ -170,7 +170,7 @@ import Cocoa
 	//{
 	//	if (_isDisabled)
 	//		return;
-	//	if (isEntered)
+	//	if (isEntered == false)
 	//	{
 	//		isEntered=YES;
 	//		[self setNeedsDisplay:YES];
@@ -178,7 +178,7 @@ import Cocoa
 	//}
 
 	override func mouseUp(with event: NSEvent) {
-		if isDisabled || isEntered {
+		if isDisabled || isEntered == false {
 			return
 		}
 
@@ -193,7 +193,7 @@ import Cocoa
 			if pt.th_isEqual(to: downPoint, tolerance: 3.0) && (downWinPoint == self.window!.frame.origin) {
 
 				let isKeyWin = self.window!.isKeyWindow
-				if (respondsWhenIsNotKeyWindow && isKeyWin) || respondsWhenIsNotKeyWindow {
+				if (respondsWhenIsNotKeyWindow == false && isKeyWin) || respondsWhenIsNotKeyWindow {
 					delegator.overView(self, didPressed: ["event": event])
 				}
 			}
