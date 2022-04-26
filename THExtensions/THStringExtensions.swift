@@ -30,7 +30,7 @@ extension String {
 extension String {
 
 	private func th_trimedFirstSpace() -> String {
-		if self.hasPrefix(" ") == true {
+		if self.hasPrefix(" ") {
 			return String(self.dropFirst(1))
 		}
 		return self

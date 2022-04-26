@@ -24,11 +24,11 @@ import Cocoa
 	override func sendEvent(_ event: NSEvent) {
 
 		if event.window == self {
-			if self.ignoresUserFrameResizing == true && (event.type == .leftMouseDown || event.type == .rightMouseDown) {
+			if self.ignoresUserFrameResizing && (event.type == .leftMouseDown || event.type == .rightMouseDown) {
 				self.ignoresUserFrameResizing = false
 			}
 
-			if self.isKeyWindow == true && event.type == .keyDown && event.isARepeat == false {
+			if self.isKeyWindow && event.type == .keyDown && event.isARepeat == false {
 				if let delegate = self.delegate as? PWPaneWindowEventDelegateProtocol {
 					if delegate.paneWindow(self, sendEvent: event, firstResponder: self.firstResponder) == true {
 						return

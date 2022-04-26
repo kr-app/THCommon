@@ -45,7 +45,7 @@ extension URL {
 			else {
 				return self.absoluteString
 			}
-			if host.hasPrefix("www.") == true {
+			if host.hasPrefix("www.") {
 				return String(host.dropFirst("www.".count))
 			}
 			return host
@@ -53,7 +53,7 @@ extension URL {
 	}
 
 	static func th_recomposedUrl(href: String, site: URL) -> URL? {
-		if href.hasPrefix("http") == true {
+		if href.hasPrefix("http") {
 			return URL(string: href)
 		}
 		if let sc = site.scheme, let h = site.host {

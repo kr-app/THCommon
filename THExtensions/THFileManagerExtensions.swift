@@ -59,7 +59,7 @@ extension FileManager {
 		}
 
 		for invalidFsChar in Cached.invalidFsChars {
-			if filename.contains(invalidFsChar) == true {
+			if filename.contains(invalidFsChar) {
 				return false
 			}
 		}
@@ -76,7 +76,7 @@ extension FileManager {
 		var validChar = false
 	
 		for invalidFsChar in Cached.invalidFsChars {
-			if nName.contains(invalidFsChar) == true {
+			if nName.contains(invalidFsChar) {
 				nName = nName.replacingOccurrences(of: invalidFsChar, with: subsitution ?? "_")
 			}
 			else {
@@ -84,7 +84,7 @@ extension FileManager {
 			}
 		}
 
-		if validChar == false || nName.isEmpty == true {
+		if validChar == false || nName.isEmpty {
 			return nil
 		}
 
@@ -94,7 +94,7 @@ extension FileManager {
 	@objc class func th_checkCreatedDirectory(atPath dirPath: String) -> Bool {
 
 		var isDir = ObjCBool(false)
-		if FileManager.default.fileExists(atPath: dirPath, isDirectory: &isDir) == true {
+		if FileManager.default.fileExists(atPath: dirPath, isDirectory: &isDir) {
 			if isDir.boolValue == true {
 				return true
 			}
@@ -118,7 +118,7 @@ extension FileManager {
 			var dir: String!
 			
 #if os(macOS)
-			if THRunningApp.isSandboxedApp() == true {
+			if THRunningApp.isSandboxedApp() {
 				dir = paths.first
 			}
 			else {
@@ -156,7 +156,7 @@ extension FileManager {
 			var dir: String!
 			
 #if os(macOS)
-			if THRunningApp.isSandboxedApp() == true {
+			if THRunningApp.isSandboxedApp() {
 				dir = paths.first
 			}
 			else {
@@ -194,7 +194,7 @@ extension FileManager {
 			var dir: String!
 			
 #if os(macOS)
-			if THRunningApp.isSandboxedApp() == true {
+			if THRunningApp.isSandboxedApp() {
 				dir = paths.first
 			}
 			else {

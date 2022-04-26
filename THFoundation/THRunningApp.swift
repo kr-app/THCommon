@@ -67,7 +67,7 @@ extension THRunningApp {
 
 	@objc class func killOtherApps(_ bundleId: String? = nil) {
 
-		if isSandboxedApp() == true {
+		if isSandboxedApp() {
 			THLogError("not yet supported by sandboxed environement")
 			return
 		}
@@ -85,7 +85,7 @@ extension THRunningApp {
 			while tryCount < 10 {
 
 				if tryCount == 0 {
-					if app.terminate() == true || app.forceTerminate() == true {
+					if app.terminate() || app.forceTerminate() {
 						break
 					}
 				}

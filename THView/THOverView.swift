@@ -49,6 +49,7 @@ import Cocoa
 
 	override func awakeFromNib() {
 		super.awakeFromNib()
+
 		if trackingArea == nil {
 			generate_trackingArea()
 		}
@@ -56,6 +57,7 @@ import Cocoa
 	
 	deinit {
 		delegator = nil
+
 		if trackingArea != nil {
 			removeTrackingArea(trackingArea!)
 			trackingArea = nil
@@ -74,13 +76,8 @@ import Cocoa
 			removeTrackingArea(trackingArea)
 		}
 
-		let options: NSTrackingArea.Options = [ .mouseEnteredAndExited,
-																		//NSTrackingMouseMoved|
-																		.activeInActiveApp,
-																		.inVisibleRect]
-	
 		trackingArea = NSTrackingArea(	rect: NSRect(0.0, 0.0, self.frame.size.width, self.frame.size.height),
-																options: options,
+																options: [.mouseEnteredAndExited, .activeInActiveApp, .inVisibleRect],
 																owner: self,
 																userInfo: nil)
 		addTrackingArea(trackingArea!)
@@ -90,6 +87,7 @@ import Cocoa
 		isEntered = false
 		isPressed = false
 		isDisabled = false
+
 		needsDisplay = true
 	}
 
@@ -97,7 +95,7 @@ import Cocoa
 		if hidden == true && trackingArea != nil {
 			removeTrackingArea(trackingArea!)
 		}
-		else if hidden == false {
+		else if hidden {
 			generate_trackingArea()
 			needsDisplay = true
 		}
@@ -115,7 +113,7 @@ import Cocoa
 	// MARK: -
 
 	override func mouseEntered(with event: NSEvent) {
-		if isDisabled == true || isEntered == true {
+		if isDisabled || isEntered {
 			return
 		}
 
@@ -128,7 +126,7 @@ import Cocoa
 	}
 
 	override func mouseExited(with event: NSEvent) {
-		if isDisabled == true || isEntered == false {
+		if isDisabled || isEntered {
 			return
 		}
 
@@ -141,7 +139,7 @@ import Cocoa
 	}
 
 	override func mouseDown(with event: NSEvent) {
-		if isDisabled == true {
+		if isDisabled {
 			return
 		}
 
@@ -154,12 +152,12 @@ import Cocoa
 	}
 
 	override func mouseDragged(with event: NSEvent) {
-		if isDisabled == true || isPressed == false {
+		if isDisabled || isPressed {
 			return
 		}
 
 		let pt = convert(event.locationInWindow, from: nil)
-		if pt.th_isEqual(to: downPoint, tolerance: 3.0) == true {
+		if pt.th_isEqual(to: downPoint, tolerance: 3.0) {
 			return
 		}
 
@@ -170,9 +168,9 @@ import Cocoa
 
 	//- (void)mouseMoved:(NSEvent*)event
 	//{
-	//	if (_isDisabled == true)
+	//	if (_isDisabled)
 	//		return;
-	//	if (isEntered == false)
+	//	if (isEntered)
 	//	{
 	//		isEntered=YES;
 	//		[self setNeedsDisplay:YES];
@@ -180,7 +178,7 @@ import Cocoa
 	//}
 
 	override func mouseUp(with event: NSEvent) {
-		if isDisabled == true || isEntered == false {
+		if isDisabled || isEntered {
 			return
 		}
 
@@ -192,10 +190,10 @@ import Cocoa
 		if let delegator = delegator,
 		   NSApp.isActive == true {
 
-			if pt.th_isEqual(to: downPoint, tolerance: 3.0) == true && (downWinPoint == self.window!.frame.origin) {
+			if pt.th_isEqual(to: downPoint, tolerance: 3.0) && (downWinPoint == self.window!.frame.origin) {
 
 				let isKeyWin = self.window!.isKeyWindow
-				if (self.respondsWhenIsNotKeyWindow == false && isKeyWin == true) || self.respondsWhenIsNotKeyWindow == true {
+				if (respondsWhenIsNotKeyWindow && isKeyWin) || respondsWhenIsNotKeyWindow {
 					delegator.overView(self, didPressed: ["event": event])
 				}
 			}
@@ -208,7 +206,7 @@ import Cocoa
 	}
 
 	override func rightMouseDown(with event: NSEvent) {
-		if NSApp.isActive == true && self.window!.isKeyWindow == true {
+		if NSApp.isActive && self.window!.isKeyWindow {
 			delegator?.overView(self, didPressed: ["isRightClick": true, "event" : event])
 		}
 
@@ -221,24 +219,20 @@ import Cocoa
 	// MARK: -
 
 	override func draw(_ dirtyRect: NSRect) {
-		if self.isHidden == true {
+		if self.isHidden {
 			return
 		}
 
 		let frameSz = self.frame.size
 
 #if DEBUG
-		if drawOrange == true {
+		if drawOrange {
 			NSColor.orange.set()
 			NSBezierPath .fill(self.bounds)
 		}
 #endif
 
-		var state = THOverViewState.normal
-		if isDisabled == true { state = .disabled }
-		else if isPressed == true { state = .pressed }
-		else if isEntered == true { state = .highlighted }
-
+		let state: THOverViewState = isDisabled ? .disabled : isPressed ? .pressed : isEntered ? .highlighted : .normal
 		delegator?.overView(self, drawRect: NSRect(0.0, 0.0, frameSz.width, frameSz.height), withState: state)
 	}
 }

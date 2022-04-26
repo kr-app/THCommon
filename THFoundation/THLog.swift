@@ -14,12 +14,12 @@
 	class func write(_ log: String, at date: Date) {
 		
 		func trimPersonal(_ log: String) -> String {
-#if os(iOS)
-			return log
-#else
-			if log.contains(s_homeDir) == true {
+#if os(macOS)
+			if log.contains(s_homeDir) {
 				return log.replacingOccurrences(of: s_homeDir, with: "/Users/XXX")
 			}
+			return log
+#elseif os(iOS)
 			return log
 #endif
 		}
@@ -69,13 +69,13 @@ func THFatalError(_ msg: String, function: String = #function, file: String = #f
 
 	//return Never.Body
 	
-	if Thread.isMainThread == true {
+	if Thread.isMainThread {
 #if os(macOS)
 		let alert = NSAlert(withTitle: "Fatal Error", message: "\(alert)\n\n\(msg)" , buttons: ["Ok"])
 		alert.runModal()
 #elseif os(iOS)
 		let windows = UIApplication.shared.windows
-		let keyWin = windows.first( where: { $0.isKeyWindow == true }) ?? windows.first(where: { $0.rootViewController != nil })
+		let keyWin = windows.first( where: { $0.isKeyWindow }) ?? windows.first(where: { $0.rootViewController != nil })
 
 		var mainVc = keyWin?.rootViewController
 
