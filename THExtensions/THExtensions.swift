@@ -86,12 +86,10 @@ extension NSSize {
 
 extension NSPoint {
 
+	var th_isZero: Bool { get { self.x.isZero && self.y.isZero } }
+
 	init(_ x: CGFloat, _ y: CGFloat) {
 		self.init(x: x, y: y)
-	}
-
-	func th_isZero() -> Bool {
-		self.x.isZero && self.y.isZero
 	}
 
 	func th_isEqual(to anotherPoint: NSPoint?, tolerance: CGFloat = 0.0) -> Bool {
@@ -125,10 +123,6 @@ extension CGSize {
 	
 	init(_ width: CGFloat, _ height: CGFloat) {
 		self.init(width: width, height: height)
-	}
-
-	init(_ widthAndHeight: CGFloat) {
-		self.init(width: widthAndHeight, height: widthAndHeight)
 	}
 
 }

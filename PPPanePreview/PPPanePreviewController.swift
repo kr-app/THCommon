@@ -8,7 +8,7 @@ class PPPanePreviewController : NSViewController, NSWindowDelegate {
 	private var myWindow: PPPanePreviewWindow?
 
 	func showWindow(at point: NSPoint, on screen: NSScreen?) {
-		guard let screen = screen, point.th_isZero() == false
+		guard let screen = screen, point.th_isZero == false
 		else {
 			THLogError("point == .zero || screen == nil")
 			return
