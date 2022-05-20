@@ -9,7 +9,7 @@ import SystemConfiguration
 
 //--------------------------------------------------------------------------------------------------------------------------------------------
 struct THIconDownloaderConfiguration {
-	var retention: TimeInterval = 0.0 // days — remove file on maintenance
+	var retention: TimeInterval = 0.0 // days — remove files on maintenance
 	var validity: TimeInterval = 0.0 // days — refresh on reload from disk
 	var storeRawData = true
 	var maxSize: CGFloat = 0.0
@@ -77,29 +77,33 @@ class IconDownloader: NSObject {
 		th_description("name:\(name) directory:\(directory)")
 	}
 
-/*	private func setDiskRetention(_ retention: TimeInterval) {
+	func applyUpdate() {
+		setDiskRetention(configuration.retention)
+	}
 
-		THFatalError(retention < 0.0, "retention:\(retention)")
-
-		guard let cacheDir = cacheDir
-		else {
-			THFatalError("cacheDir == nil")
+	private func setDiskRetention(_ retention: TimeInterval) {
+		if retention <= 0.0 {
+			return
 		}
 
-		guard let files = FileManager.default.enumerator(atPath: cacheDir)
+		guard let directory = directory
 		else {
-			THFatalError("files == nil cacheDir:\(cacheDir)")
+			THFatalError("directory == nil")
+		}
+
+		guard let files = FileManager.default.enumerator(atPath: directory)
+		else {
+			THFatalError("files == nil directory:\(directory)")
 		}
 
 		let now = Date().timeIntervalSince1970
 
 		while let file = files.nextObject() as? String {
-
-			if file.hasPrefix(".") == true {
+			if file.hasPrefix(".") {
 				continue
 			}
 
-			let path = cacheDir.th_appendingPathComponent(file)
+			let path = directory.th_appendingPathComponent(file)
 
 			var isDir = ObjCBool(true)
 			if FileManager.default.fileExists(atPath: path, isDirectory: &isDir) == false || isDir.boolValue == true {
@@ -107,23 +111,21 @@ class IconDownloader: NSObject {
 				continue
 			}
 	
-			if retention > 0.0 {
-				guard let creationDate = FileManager.th_modDate1970(atPath: path)
-				else {
-					THLogError("creationDate == nil path:\(path)")
-					continue;
-				}
+			guard let creationDate = FileManager.th_modDate1970(atPath: path)
+			else {
+				THLogError("creationDate == nil path:\(path)")
+				continue;
+			}
 
-				if (now - creationDate.timeIntervalSince1970) < retention {
-					continue
-				}
+			if (now - creationDate.timeIntervalSince1970) < retention {
+				continue
 			}
 
 			if FileManager.default.th_removeItem(atPath: path) == false {
 				THLogError("th_removeItem == false path:\(path)")
 			}
 		}
-	}*/
+	}
 
 	// MARK: -
 	

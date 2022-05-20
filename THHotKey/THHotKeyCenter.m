@@ -32,15 +32,17 @@
 	return [self initWithKeyCode:[(NSString*)comps[1] longLongValue] modifierFlags:[(NSString*)comps[2] longLongValue] isEnabled:[(NSString*)comps[3] integerValue]>0?YES:NO];
 }
 
-+ (instancetype)hotKeyRepresentationFromUserDefaults
++ (instancetype)hotKeyRepresentationFromUserDefaultsWithTag:(NSInteger)tag
 {
-	NSString *stringRepresentation=[[NSUserDefaults standardUserDefaults] stringForKey:@"HotKey-StringRepresentation"];
-	return stringRepresentation==nil?nil:[[THHotKeyRepresentation alloc] initWithStringRepresentation:stringRepresentation];
+	NSString *stringRepresentation=[[NSUserDefaults standardUserDefaults] stringForKey:[NSString stringWithFormat:@"HotKey-StringRepresentation-%ld",tag]];
+	THHotKeyRepresentation *hotKey=stringRepresentation==nil?nil:[[THHotKeyRepresentation alloc] initWithStringRepresentation:stringRepresentation];
+	hotKey.tag=tag;
+	return hotKey;
 }
 
-- (void)saveToUserDefaults
+- (void)saveToUserDefaultsWithTag:(NSInteger)tag
 {
-	[[NSUserDefaults standardUserDefaults] setObject:self.stringRepresentation forKey:@"HotKey-StringRepresentation"];
+	[[NSUserDefaults standardUserDefaults] setObject:self.stringRepresentation forKey:[NSString stringWithFormat:@"HotKey-StringRepresentation-%ld",tag]];
 }
 
 @end
@@ -212,20 +214,20 @@ static OSStatus hotKey_carbonEventCb(EventHandlerCallRef inHandlerCallRef, Event
 	return noErr;
 }
 
-- (void)tryToRegisterHotKeyRepresentation:(THHotKeyRepresentation*)hotKey withTag:(NSInteger)tag
+- (void)registerHotKeyRepresentation:(THHotKeyRepresentation*)hotKey
 {
-	if (hotKey==nil || hotKey.isEnabled==NO)
+	if (hotKey==nil || hotKey.isEnabled==NO || hotKey.tag==0)
 		return;
 
-	NSString *errorMsg=nil;
-	NSInteger status=[self registerableStatusOfHotKeyWithKeyCode:hotKey.keyCode modifierFlags:hotKey.modifierFlags keyCodeString:NULL errorMsg:&errorMsg];
+	NSString *error=nil;
+	NSInteger status=[self registerableStatusOfHotKeyWithKeyCode:hotKey.keyCode modifierFlags:hotKey.modifierFlags keyCodeString:NULL errorMsg:&error];
 	if (status!=1)
 	{
-		THLogError(@"registerableStatusOfHotKeyWithKeyCode:%ld errorMsg:%@ hotKey:%@",status,errorMsg,hotKey);
+		THLogError(@"registerableStatusOfHotKeyWithKeyCode:%ld error:%@ hotKey:%@",status,error,hotKey);
 		return;
 	}
 
-	if ([self registerHotKeyWithKeyCode:hotKey.keyCode modifierFlags:hotKey.modifierFlags tag:tag]==NO)
+	if ([self registerHotKeyWithKeyCode:hotKey.keyCode modifierFlags:hotKey.modifierFlags tag:hotKey.tag]==NO)
 	{
 		THLogError(@"registerHotKeyWithKeyCode==NO hotKey:%@",hotKey);
 		return;

@@ -27,7 +27,10 @@
 
 + (NSUInteger)cleanedModifierFlags:(NSUInteger)modifierFlags
 {
-	return (modifierFlags&(NSEventModifierFlagControl|NSEventModifierFlagShift|NSEventModifierFlagOption|NSEventModifierFlagCommand));
+	return (modifierFlags&(	NSEventModifierFlagControl|
+											NSEventModifierFlagShift|
+											NSEventModifierFlagOption|
+											NSEventModifierFlagCommand));
 }
 
 + (BOOL)isValidKeyCode:(NSUInteger)keyCode modifierFlags:(NSUInteger)modifierFlags

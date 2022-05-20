@@ -3,6 +3,72 @@
 import Cocoa
 
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+@objc class THHighlightedDownScrollerView : NSView {
+
+	@IBOutlet var targerTableView: THHighlightedTableView?
+
+	private var mTrackingArea: NSTrackingArea?
+	private var mTimer: Timer?
+
+	deinit {
+		if let trackingArea = mTrackingArea {
+			removeTrackingArea(trackingArea)
+		}
+	}
+
+	@objc func refreshHighlightedTracking() {
+		if let trackingArea = mTrackingArea {
+			removeTrackingArea(trackingArea)
+		}
+
+		mTrackingArea = NSTrackingArea(	rect: NSRect(0.0, 0.0, self.frame.size.width, self.frame.size.height),
+																					options: [.mouseEnteredAndExited, .activeAlways, .inVisibleRect],
+																					owner: self,
+																					userInfo: nil)
+		addTrackingArea(mTrackingArea!)
+	}
+
+	override func updateTrackingAreas() {
+		super.updateTrackingAreas()
+		refreshHighlightedTracking()
+	}
+
+	override func draw(_ dirtyRect: NSRect) {
+		if mTimer != nil {
+			NSColor.gray.set()
+			NSBezierPath(rect: self.bounds).fill()
+		}
+	}
+
+	override func mouseEntered(with event: NSEvent) {
+		mTimer?.invalidate()
+		mTimer = Timer.scheduledTimer(timeInterval: 0.002, target: self, selector: #selector(t_timerAction), userInfo: nil, repeats: true)
+		needsDisplay = true
+	}
+
+	override func mouseExited(with event: NSEvent) {
+		mTimer?.invalidate()
+		mTimer = nil
+		needsDisplay = true
+	}
+
+	@objc private func t_timerAction() {
+		guard let tbv = targerTableView
+		else {
+			return
+		}
+
+		var vRect = tbv.visibleRect
+		vRect.origin.y += 1.0
+
+		tbv.scrollToVisible(vRect)
+	}
+
+}
+//------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 @objc class THHighlightedTableRowView : NSTableRowView {
 
 	//@property (nonatomic,strong) NSColor *highlightedBackgroundColor;

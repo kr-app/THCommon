@@ -12,13 +12,11 @@ import Cocoa
 		return .off
 	}
 
-	@objc class func setIsLoginItem(_ isLoginItem: Bool) {
+	@discardableResult @objc class func setIsLoginItem(_ isLoginItem: Bool) -> Bool {
 		if isLoginItem == true {
-			THSharedLoginItems.addLoginItem(Bundle.main.bundleURL)
+			return THSharedLoginItems.addLoginItem(Bundle.main.bundleURL)
 		}
-		else {
-			THSharedLoginItems.removeLoginItem(Bundle.main.bundleURL)
-		}
+		return THSharedLoginItems.removeLoginItem(Bundle.main.bundleURL)
 	}
 
 }

@@ -80,7 +80,7 @@ fileprivate struct FirefoxScriptingTools {
 			return 1
 		}
 
-		THLogError("scrupt result:\(script?.resultAed)")
+		THLogError("script result:\(script?.resultAed)")
 		return -1
 	}
 
@@ -146,7 +146,7 @@ fileprivate struct SafariScriptingTools {
 			return false
 		}
 
-		THLogInfo("scrupt result:\(script!.resultAed)")
+		THLogInfo("script result:\(script!.resultAed)")
 
 		return true
 	}*/

@@ -39,10 +39,6 @@ func THLocalizedStringTable(_ table: String, _ string: String) -> String {
 
 
 //--------------------------------------------------------------------------------------------------------------------------------------------
-func TH_isMAS() -> Bool {
-	return false
-}
-
 func TH_isDebug() -> Bool {
 #if DEBUG
 	return true

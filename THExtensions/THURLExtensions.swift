@@ -9,11 +9,11 @@
 //--------------------------------------------------------------------------------------------------------------------------------------------
 extension URLSessionConfiguration {
 
-	class func th_ephemeral() -> URLSessionConfiguration {
+	class func th_ephemeral(httpMaximumConnectionsPerHost: Int = 1, timeoutIntervalForRequest: TimeInterval = 30.0) -> URLSessionConfiguration {
 
 		let conf = URLSessionConfiguration.ephemeral
-		conf.timeoutIntervalForRequest = 30.0
-		conf.httpMaximumConnectionsPerHost = 1
+		conf.timeoutIntervalForRequest = timeoutIntervalForRequest
+		conf.httpMaximumConnectionsPerHost = httpMaximumConnectionsPerHost
 
 		let cookieStorage = HTTPCookieStorage()
 		cookieStorage.cookieAcceptPolicy = .never

@@ -9,14 +9,15 @@
 @property (nonatomic) NSUInteger keyCode;
 @property (nonatomic) NSUInteger modifierFlags;
 @property (nonatomic) BOOL isEnabled;
+@property (nonatomic) NSInteger tag;
 
 - (id)initWithKeyCode:(NSUInteger)keyCode modifierFlags:(NSUInteger)modifierFlags isEnabled:(BOOL)isEnabled;
 
-- (NSString*)stringRepresentation;
-- (id)initWithStringRepresentation:(NSString*)stringRepresentation;
+//- (NSString*)stringRepresentation;
+//- (id)initWithStringRepresentation:(NSString*)stringRepresentation;
 
-+ (instancetype)hotKeyRepresentationFromUserDefaults;
-- (void)saveToUserDefaults;
++ (instancetype)hotKeyRepresentationFromUserDefaultsWithTag:(NSInteger)tag;
+- (void)saveToUserDefaultsWithTag:(NSInteger)tag;
 
 @end
 //--------------------------------------------------------------------------------------------------------------------------------------------
@@ -42,7 +43,7 @@
 - (BOOL)registerHotKeyWithKeyCode:(NSUInteger)keyCode modifierFlags:(NSUInteger)modifierFlags tag:(NSInteger)tag;
 - (BOOL)unregisterHotKeyWithTag:(NSInteger)tag;
 
-- (void)tryToRegisterHotKeyRepresentation:(THHotKeyRepresentation*)hotKey withTag:(NSInteger)tag;
+- (void)registerHotKeyRepresentation:(THHotKeyRepresentation*)hotKey;
 
 @end
 //--------------------------------------------------------------------------------------------------------------------------------------------
