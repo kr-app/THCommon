@@ -13,6 +13,7 @@ import Cocoa
 	}
 
 	@discardableResult @objc class func setIsLoginItem(_ isLoginItem: Bool) -> Bool {
+		THFatalError(THRunningApp.isSandboxedApp(), "isSandboxedApp == true")
 		if isLoginItem == true {
 			return THSharedLoginItems.addLoginItem(Bundle.main.bundleURL)
 		}

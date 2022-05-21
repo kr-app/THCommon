@@ -4,6 +4,15 @@
 #import "TH_APP-Swift.h"
 
 //--------------------------------------------------------------------------------------------------------------------------------------------
+enum
+{
+	THLogSeverity_debug,
+	THLogSeverity_info,
+	THLogSeverity_warning,
+	THLogSeverity_error,
+	THLogSeverity_critical
+};
+
 @implementation THLog
 
 #ifdef DEBUG
@@ -45,7 +54,7 @@
 	else if (severity==THLogSeverity_error)
 		[log appendString:@"📕"];
 	else if (severity==THLogSeverity_critical)
-		[log appendString:@"💔"];
+		[log appendString:@"💣"];
 
 	[log appendFormat:@" %@",string];
 #else
