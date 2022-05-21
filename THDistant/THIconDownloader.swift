@@ -339,22 +339,20 @@ class IconDownloader: NSObject {
 
 			guard let data = data, let rep = response as? HTTPURLResponse
 			else {
-				DispatchQueue.main.async {
-					THLogError("data == nil || rep == nil icon:\(icon) error:\(error)")
+				THLogError("data == nil || rep == nil icon:\(icon) error:\(error)")
 
-					icon.task = nil
-					icon.error = error?.localizedDescription ?? THLocalizedString("no data or no response url")
-				}
+				icon.task = nil
+				icon.error = error?.localizedDescription ?? THLocalizedString("no data or no response url")
+
 				return
 			}
 
 			if rep.statusCode != 200 {
-				DispatchQueue.main.async {
-					THLogError("response:\(rep.th_displayStatus()) icon:\(icon)")
+				THLogError("response:\(rep.th_displayStatus()) icon:\(icon)")
 
-					icon.task = nil
-					icon.error = rep.th_displayStatus()
-				}
+				icon.task = nil
+				icon.error = rep.th_displayStatus()
+
 				return
 			}
 
@@ -368,12 +366,11 @@ class IconDownloader: NSObject {
 					THLogError("saveToDisk(data:ofIco:receivedData:) == false icon:\(icon)")
 				}
 
-				DispatchQueue.main.async {
-					THLogError("can not create img from data icon:\(icon)")
+				THLogError("can not create img from data icon:\(icon)")
 
-					icon.task = nil
-					icon.error = THLocalizedString("can not create img from data (\(request.url))")
-				}
+				icon.task = nil
+				icon.error = THLocalizedString("can not create img from data (\(request.url))")
+
 				return
 			}
 

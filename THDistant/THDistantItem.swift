@@ -30,7 +30,9 @@ class THDistantObject: NSObject {
 		THLogInfo("request:\(request.url)")
 
 		self.lastUpdate = Date()
+#if DEBUG
 		let t0 = CFAbsoluteTimeGetCurrent()
+#endif
 
 		task = urlSession.dataTask(with: request) {(data: Data?, response: URLResponse?, error: Error?) in
 			if self.task == nil {
@@ -44,40 +46,35 @@ class THDistantObject: NSObject {
 			guard 	let rep = response as? HTTPURLResponse,
 						let data = data
 			else {
-				DispatchQueue.main.async {
-					THLogError("no data or response for request:\(request.url), error:\(error)")
+				THLogError("no data or response for request:\(request.url), error:\(error)")
 
-					self.concludeUpdate(withError: error?.localizedDescription ?? THLocalizedString("no data or no response"))
-					completion(false, error?.localizedDescription ?? THLocalizedString("no data or no response"))
-				}
+				self.concludeUpdate(withError: error?.localizedDescription ?? THLocalizedString("no data or no response"))
+				completion(false, error?.localizedDescription ?? THLocalizedString("no data or no response"))
+
 				return
 			}
 			
 			if rep.statusCode != 200 {
-				DispatchQueue.main.async {
-					let datarep = String(data: data, encoding: .utf8)
-					THLogError("response:\(rep.th_displayStatus()) data:\(datarep)")
+				let datarep = String(data: data, encoding: .utf8)
+				THLogError("response:\(rep.th_displayStatus()) data:\(datarep)")
 
-					self.concludeUpdate(withError: rep.th_displayStatus())
-					completion(false, rep.th_displayStatus())
-				}
+				self.concludeUpdate(withError: rep.th_displayStatus())
+				completion(false, rep.th_displayStatus())
+
 				return
 			}
 
 			if let error = self.parse(data: data) {
-				DispatchQueue.main.async {
-					THLogError("parse failed error:\(error)")
+				THLogError("parse failed error:\(error)")
 
-					self.concludeUpdate(withError: error)
-					completion(false, error)
-				}
+				self.concludeUpdate(withError: error)
+				completion(false, error)
+
 				return
 			}
 	
-			DispatchQueue.main.async {
-				self.concludeUpdate(withError: nil)
-				completion(true, nil)
-			}
+			self.concludeUpdate(withError: nil)
+			completion(true, nil)
 		}
 
 		task!.resume()
