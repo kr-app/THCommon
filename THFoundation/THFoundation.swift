@@ -39,14 +39,6 @@ func THLocalizedStringTable(_ table: String, _ string: String) -> String {
 
 
 //--------------------------------------------------------------------------------------------------------------------------------------------
-func TH_isDebug() -> Bool {
-#if DEBUG
-	return true
-#else
-	return false
-#endif
-}
-
 #if DEBUG
 func TH_isDebuggerAttached() -> Bool {
 //	static int isAttached=0;

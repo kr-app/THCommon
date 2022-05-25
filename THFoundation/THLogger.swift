@@ -17,6 +17,31 @@ class THLoggerConfig: NSObject {
 
 
 //--------------------------------------------------------------------------------------------------------------------------------------------
+fileprivate extension FileHandle {
+
+	@discardableResult func log_write(_ data: Data) -> Bool {
+		do {
+			try self.write(contentsOf: data)
+			return true
+		}
+		catch {
+			print("error while log_write, error:\(error)")
+		}
+		return false
+	}
+
+	@discardableResult func log_write(_ string: String) -> Bool {
+		if let data = string.data(using: .utf8) {
+			return log_write(data)
+		}
+		return false
+	}
+
+}
+//--------------------------------------------------------------------------------------------------------------------------------------------
+
+
+//--------------------------------------------------------------------------------------------------------------------------------------------
 @objc class THLogger: NSObject {
 
 	@objc static let shared = THLogger()
@@ -55,7 +80,7 @@ class THLoggerConfig: NSObject {
 			return
 		}
 
-		purgeDirectory()
+		runDirectoryMaintenance()
 
 		guard let fileHandler = createFileHandler()
 		else {
@@ -93,7 +118,7 @@ class THLoggerConfig: NSObject {
 		return true
 	}
 	
-	private func purgeDirectory() {
+	private func runDirectoryMaintenance() {
 		guard let dirPath = dirPath
 		else {
 			return
@@ -194,7 +219,7 @@ class THLoggerConfig: NSObject {
 //		content.append("Build Date-Time: " + DateFormatter.th_string_YMD_HMS(fromDate: TH_AppDateCompiled()!)!)
 		content.append("\n")
 
-		fh.th_write(content.joined(separator: "\n"))
+		fh.log_write(content.joined(separator: "\n"))
 
 		return fh
 	}
@@ -217,10 +242,10 @@ class THLoggerConfig: NSObject {
 		lock.lock()
 
 		nbLogs += 1
-		fh.th_write((dateFormatter.string(from: date) + " " + log + "\n"))
+		fh.log_write((dateFormatter.string(from: date) + " " + log + "\n"))
 
 		if nbLogs >= config.rotationLogCount {
-			fh.th_write("\nCLOSED")
+			fh.log_write("\nCLOSED")
 
 #if os(macOS)
 			if #available(macOS 10.15, *) {
@@ -235,7 +260,7 @@ class THLoggerConfig: NSObject {
 			fileHandler = nil
 			nbLogs = 0
 
-			purgeDirectory()
+			runDirectoryMaintenance()
 			fileHandler = createFileHandler()
 		}
 

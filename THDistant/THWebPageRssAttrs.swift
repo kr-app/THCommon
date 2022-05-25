@@ -1,6 +1,10 @@
 // THWebPageRssAttrs.swift
 
-import Cocoa
+#if os(macOS)
+	import Cocoa
+#elseif os(iOS)
+	import UIKit
+#endif
 
 //--------------------------------------------------------------------------------------------------------------------------------------------
 struct THWebPageRssAttrs {

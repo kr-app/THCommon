@@ -50,11 +50,18 @@ extension THRunningApp {
 		results["debuggerAttached"] = 0
 #endif
 
+		results["pid"] = Int(processId)
 		results["sandboxedApp"] = isSandboxedApp() ? 1 : 0
 		results["buildDate"] = buildDate()
 
 		return results
 	}
+
+#if DEBUG
+	@objc class func printConfig() {
+		THLogDebug("app configuration:\(config() as NSDictionary)")
+	}
+#endif
 
 	private class func killApp(withPid pid: pid_t) -> Int32 {
 		let p = Process()
@@ -77,10 +84,9 @@ extension THRunningApp {
 			THFatalError("bundleId == nil bundle:\(Bundle.main)")
 		}
 
-		let myPid = NSRunningApplication.current.processIdentifier
 		let apps = NSRunningApplication.runningApplications(withBundleIdentifier: bundleId)
 
-		for app in apps.filter({ $0.processIdentifier != myPid }) {
+		for app in apps.filter({ $0.processIdentifier != processId }) {
 			var tryCount = 0
 			while tryCount < 10 {
 

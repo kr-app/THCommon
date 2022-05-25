@@ -6,33 +6,6 @@
 	import UIKit
 #endif
 
-//--------------------------------------------------------------------------------------------------------------------------------------------
-extension FileHandle {
-	
-	@discardableResult func th_write(_ data: Data) -> Bool {
-#if os(macOS)
-		if #available(macOS 10.15.4, *) {
-			try? self.write(contentsOf: data)
-		} else {
-			self.write(data)
-		}
-#elseif os(iOS)
-		try? self.write(contentsOf: data)
-#endif
-		return true
-	}
-
-	@discardableResult func th_write(_ string: String) -> Bool {
-		if let data = string.data(using: .utf8) {
-			return th_write(data)
-		}
-		return false
-	}
-
-}
-//--------------------------------------------------------------------------------------------------------------------------------------------
-
-
 //-----------------------------------------------------------------------------------------------------------------------------------------
 fileprivate class Cached {
 	static let invalidFsChars = [":", "/", "\\", "|", "\"", "<", ">", "`", "\n"]
@@ -300,6 +273,7 @@ extension FileManager {
 		}
 		return false
 	}
+
 }
 //-----------------------------------------------------------------------------------------------------------------------------------------
 
