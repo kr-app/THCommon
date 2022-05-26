@@ -7,14 +7,6 @@
 #endif
 
 //--------------------------------------------------------------------------------------------------------------------------------------------
-fileprivate class DfCache {
-	static var numberFormatter_decimal: NumberFormatter?
-	static var byteCountFormatter_bin1024: ByteCountFormatter?
-}
-//--------------------------------------------------------------------------------------------------------------------------------------------
-
-
-//--------------------------------------------------------------------------------------------------------------------------------------------
 @objc class THTodayDateFormatter: DateFormatter {
 	private var todayFormatter: DateFormatter!
 	private var otherFormatter: DateFormatter?
@@ -73,7 +65,6 @@ extension DateFormatter {
 
 
 //--------------------------------------------------------------------------------------------------------------------------------------------
-@available(macOS 10.15, *)
 extension RelativeDateTimeFormatter {
 	
 	convenience init(withUnitsStyle unitsStyle: RelativeDateTimeFormatter.UnitsStyle) {
