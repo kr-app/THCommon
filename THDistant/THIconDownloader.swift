@@ -104,12 +104,6 @@ class IconDownloader: NSObject {
 
 			let path = directory.th_appendingPathComponent(file)
 
-			var isDir = ObjCBool(true)
-			if FileManager.default.fileExists(atPath: path, isDirectory: &isDir) == false || isDir.boolValue == true {
-				THLogError("fileExists == false || isDir == true path:\(path)")
-				continue
-			}
-	
 			guard let creationDate = FileManager.th_modDate1970(atPath: path)
 			else {
 				THLogError("creationDate == nil path:\(path)")
@@ -288,8 +282,32 @@ class IconDownloader: NSObject {
 		THFatalError("not yet implemented")
 	}
 
-	fileprivate func removeIcons() {
-		THFatalError("not yet implemented")
+	func removeIcons() {
+
+		icons.forEach({
+			$0.task?.cancel()
+		})
+
+		if let directory = directory {
+
+			if let files = FileManager.default.enumerator(atPath: directory) {
+				while let file = files.nextObject() as? String {
+					if file.hasPrefix(".") {
+						continue
+					}
+
+					let path = directory.th_appendingPathComponent(file)
+					if FileManager.default.th_removeItem(atPath: path) == false {
+						THLogError("th_removeItem == false path:\(path)")
+					}
+				}
+			}
+			else {
+				THFatalError("files == nil directory:\(directory)")
+			}
+		}
+
+		icons.removeAll()
 	}
 
 	// MARK: -

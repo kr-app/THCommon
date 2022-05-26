@@ -26,7 +26,8 @@ class THDistantObject: NSObject {
 
 	func update(urlSession: URLSession, completion: @escaping (Bool, String?) -> Void) {
 		if task != nil {
-			return
+			THLogError("cancelled task:\(task)")
+			task?.cancel()
 		}
 
 		let request = updateRequest()
@@ -34,11 +35,20 @@ class THDistantObject: NSObject {
 		THLogInfo("request:\(request.url)")
 
 		self.lastUpdate = Date()
+
 #if DEBUG
 		let t0 = CFAbsoluteTimeGetCurrent()
 #endif
 
+#if os(iOS)
+		THNetworkActivity.addClient(self)
+#endif
+
 		task = urlSession.dataTask(with: request) {(data: Data?, response: URLResponse?, error: Error?) in
+#if os(iOS)
+		THNetworkActivity.removeClient(self)
+#endif
+
 			if self.task == nil {
 				THLogInfo("cancelled")
 				return
