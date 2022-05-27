@@ -20,6 +20,20 @@ class THLoggerConfig: NSObject {
 fileprivate extension FileHandle {
 
 	@discardableResult func log_write(_ data: Data) -> Bool {
+#if os(macOS)
+		if #available(macOS 10.15.4, *) {
+			do {
+				try self.write(contentsOf: data)
+				return true
+			}
+			catch {
+				print("error while log_write, error:\(error)")
+			}
+		} else {
+			self.write(data)
+			return true
+		}
+#elseif os(iOS)
 		do {
 			try self.write(contentsOf: data)
 			return true
@@ -27,6 +41,8 @@ fileprivate extension FileHandle {
 		catch {
 			print("error while log_write, error:\(error)")
 		}
+#endif
+
 		return false
 	}
 
