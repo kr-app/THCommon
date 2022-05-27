@@ -14,11 +14,36 @@
 	@objc static let appVersion = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as! String
 	@objc static let appBuild = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as! String
 
+#if DEBUG
+	private static var debuggerAttached = 0
+#endif
+
 #if os(macOS)
 	@objc static let processId = NSRunningApplication.current.processIdentifier
 
-	private static var isSandboxed = 0
+	private static var sandboxed = 0
 #endif
+}
+//--------------------------------------------------------------------------------------------------------------------------------------------
+
+
+//--------------------------------------------------------------------------------------------------------------------------------------------
+extension THRunningApp {
+
+#if DEBUG
+	@objc class func isDebuggerAttached() -> Bool {
+		if debuggerAttached == 0 {
+			var info = kinfo_proc()
+			var mib : [Int32] = [CTL_KERN, KERN_PROC, KERN_PROC_PID, getpid()]
+			var size = MemoryLayout<kinfo_proc>.stride
+			let junk = sysctl(&mib, UInt32(mib.count), &info, &size, nil, 0)
+			assert(junk == 0, "sysctl failed")// errno:%d (%s)",errno,strerror(errno))
+			debuggerAttached = (info.kp_proc.p_flag & P_TRACED) != 0 ? 1 : -1
+		}
+		return debuggerAttached == 1
+	}
+#endif
+
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -28,11 +53,11 @@
 extension THRunningApp {
 
 	@objc class func isSandboxedApp() -> Bool {
-		if Self.isSandboxed == 0 {
+		if sandboxed == 0 {
 			let environment = ProcessInfo.processInfo.environment
-			Self.isSandboxed = environment["APP_SANDBOX_CONTAINER_ID"] != nil ? 1 : -1
+			sandboxed = environment["APP_SANDBOX_CONTAINER_ID"] != nil ? 1 : -1
 		}
-		return Self.isSandboxed == 1
+		return sandboxed == 1
 	}
 
 	@objc class func buildDate() -> Date? {
@@ -44,7 +69,7 @@ extension THRunningApp {
 
 #if DEBUG
 		results["debug"] = 1
-		results["debuggerAttached"] = TH_isDebuggerAttached() ? 1 : 0
+		results["debuggerAttached"] = isDebuggerAttached() ? 1 : 0
 #else
 		results["debug"] = 0
 		results["debuggerAttached"] = 0
